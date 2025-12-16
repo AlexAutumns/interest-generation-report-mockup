@@ -1,0 +1,301 @@
+leadId,createdDate,firstEngagementDate,lastEngagementDate,status,conversion,conversionDate,lostReason,channel,campaign,industry,region,agent,followUpCount,avgFollowUpTime,leadScore,sourceCost,revenue
+LEAD-1000,2025-05-02,2025-05-03,2025-05-18,Qualified,0,,,Events,Campaign B,Education,Singapore,Agent Chris,2,36.89,23,5.19,0.0
+LEAD-1001,2025-01-30,2025-02-03,2025-02-10,Lost,0,,Timeline Issue,LinkedIn,Campaign A,Finance,Singapore,Agent Chris,3,20.82,54,49.75,0.0
+LEAD-1002,2025-04-06,2025-04-08,2025-04-16,Qualified,0,,,Website,Campaign C,Finance,Philippines,Agent Dana,5,12.13,53,6.85,0.0
+LEAD-1003,2025-03-05,2025-03-12,2025-03-18,Lost,0,,No Interest,Website,Campaign A,Healthcare,Philippines,Agent Ben,6,19.66,33,48.79,0.0
+LEAD-1004,2025-05-11,2025-05-19,2025-06-08,Engaged,0,,,Facebook Ads,Campaign B,Retail,Philippines,Agent Ben,2,27.06,52,23.51,0.0
+LEAD-1005,2025-05-11,2025-05-15,2025-05-25,Converted,1,2025-05-27,,Events,Campaign D,Education,Singapore,Agent Dana,1,31.07,35,48.88,1661.94
+LEAD-1006,2025-03-19,2025-03-20,2025-03-21,Converted,1,2025-03-23,,Website,Campaign C,Education,Malaysia,Agent Anna,6,21.93,81,41.48,1178.47
+LEAD-1007,2025-01-03,2025-01-03,2025-01-20,Converted,1,2025-01-21,,Email,Campaign C,Technology,Philippines,Agent Anna,1,33.7,76,25.45,447.1
+LEAD-1008,2025-03-24,2025-03-24,2025-04-09,New,0,,,Email,Campaign A,Finance,Indonesia,Agent Anna,5,26.39,59,22.42,0.0
+LEAD-1009,2025-03-16,2025-03-16,2025-03-19,Engaged,0,,,Website,Campaign B,Technology,Indonesia,Agent Dana,5,43.46,19,32.7,0.0
+LEAD-1010,2025-06-13,2025-06-16,2025-06-21,Qualified,0,,,Website,Campaign D,Finance,Singapore,Agent Ben,5,29.87,49,36.91,0.0
+LEAD-1011,2025-06-13,2025-06-16,2025-06-29,Qualified,0,,,Referral,Campaign A,Retail,Indonesia,Agent Chris,1,10.25,60,36.76,0.0
+LEAD-1012,2025-02-28,2025-03-03,2025-03-23,New,0,,,Facebook Ads,Campaign A,Healthcare,Philippines,Agent Dana,6,14.47,17,24.41,0.0
+LEAD-1013,2025-02-07,2025-02-12,2025-02-17,Qualified,0,,,Facebook Ads,Campaign C,Education,Philippines,Agent Dana,0,37.88,72,43.59,0.0
+LEAD-1014,2025-05-15,2025-05-17,2025-05-26,New,0,,,Facebook Ads,Campaign B,Healthcare,Indonesia,Agent Dana,3,8.79,70,47.96,0.0
+LEAD-1015,2025-01-06,2025-01-13,2025-01-23,Lost,0,,No Response,Events,Campaign D,Healthcare,Singapore,Agent Ben,5,7.08,59,24.79,0.0
+LEAD-1016,2025-05-24,2025-06-03,2025-06-04,Converted,1,2025-06-06,,Website,Campaign B,Finance,Singapore,Agent Chris,6,3.71,70,14.94,1166.88
+LEAD-1017,2025-05-30,2025-05-31,2025-06-06,Converted,1,2025-06-11,,LinkedIn,Campaign A,Technology,Singapore,Agent Dana,3,19.68,33,47.92,1694.0
+LEAD-1018,2025-01-26,2025-02-05,2025-02-24,Converted,1,2025-02-28,,Email,Campaign A,Healthcare,Malaysia,Agent Dana,1,32.72,93,14.18,612.35
+LEAD-1019,2025-03-02,2025-03-03,2025-03-12,Qualified,0,,,Email,Campaign D,Technology,Malaysia,Agent Chris,4,26.83,14,10.86,0.0
+LEAD-1020,2025-04-16,2025-04-26,2025-04-27,New,0,,,Email,Campaign C,Education,Malaysia,Agent Ben,3,14.61,29,37.46,0.0
+LEAD-1021,2025-02-28,2025-03-10,2025-03-13,Qualified,0,,,Website,Campaign A,Healthcare,Philippines,Agent Anna,2,9.14,25,7.49,0.0
+LEAD-1022,2025-03-29,2025-04-06,2025-04-17,New,0,,,Email,Campaign A,Education,Philippines,Agent Ben,6,14.76,18,29.96,0.0
+LEAD-1023,2025-02-27,2025-03-07,2025-03-25,Engaged,0,,,Referral,Campaign C,Finance,Malaysia,Agent Ben,4,14.35,83,11.09,0.0
+LEAD-1024,2025-03-27,2025-03-31,2025-04-12,Converted,1,2025-04-15,,Website,Campaign A,Retail,Indonesia,Agent Ben,5,23.52,51,23.92,1659.85
+LEAD-1025,2025-06-03,2025-06-10,2025-06-23,Lost,0,,No Response,LinkedIn,Campaign D,Healthcare,Malaysia,Agent Anna,6,20.33,73,48.66,0.0
+LEAD-1026,2025-01-05,2025-01-09,2025-01-16,Engaged,0,,,Email,Campaign C,Healthcare,Indonesia,Agent Ben,5,4.61,74,11.34,0.0
+LEAD-1027,2025-05-29,2025-05-30,2025-06-05,Converted,1,2025-06-06,,Facebook Ads,Campaign B,Finance,Singapore,Agent Ben,0,14.53,29,16.1,978.21
+LEAD-1028,2025-05-29,2025-05-29,2025-06-15,Engaged,0,,,Referral,Campaign D,Education,Philippines,Agent Ben,1,29.83,31,25.76,0.0
+LEAD-1029,2025-05-13,2025-05-14,2025-05-29,Qualified,0,,,LinkedIn,Campaign A,Technology,Malaysia,Agent Anna,0,13.11,32,35.42,0.0
+LEAD-1030,2025-02-07,2025-02-12,2025-02-19,Lost,0,,Timeline Issue,Email,Campaign B,Education,Indonesia,Agent Ben,2,5.35,61,5.07,0.0
+LEAD-1031,2025-05-24,2025-05-26,2025-06-12,Qualified,0,,,LinkedIn,Campaign B,Finance,Philippines,Agent Anna,0,14.0,84,38.96,0.0
+LEAD-1032,2025-06-12,2025-06-14,2025-06-20,Qualified,0,,,Website,Campaign B,Education,Indonesia,Agent Chris,0,24.78,22,16.23,0.0
+LEAD-1033,2025-05-02,2025-05-02,2025-05-22,Lost,0,,Competitor,Events,Campaign B,Technology,Philippines,Agent Ben,1,26.99,94,23.32,0.0
+LEAD-1034,2025-05-12,2025-05-18,2025-05-23,New,0,,,Email,Campaign A,Education,Indonesia,Agent Anna,2,42.59,88,30.74,0.0
+LEAD-1035,2025-06-16,2025-06-24,2025-07-06,Qualified,0,,,LinkedIn,Campaign B,Retail,Singapore,Agent Anna,6,17.56,62,8.15,0.0
+LEAD-1036,2025-03-28,2025-04-06,2025-04-14,Engaged,0,,,Events,Campaign A,Education,Malaysia,Agent Anna,2,47.16,45,19.29,0.0
+LEAD-1037,2025-06-11,2025-06-11,2025-06-17,Converted,1,2025-06-20,,LinkedIn,Campaign C,Education,Singapore,Agent Chris,3,44.05,49,20.47,1320.32
+LEAD-1038,2025-04-08,2025-04-11,2025-04-21,Qualified,0,,,Events,Campaign B,Education,Philippines,Agent Chris,3,12.02,48,12.19,0.0
+LEAD-1039,2025-05-15,2025-05-20,2025-06-05,Converted,1,2025-06-06,,Facebook Ads,Campaign B,Education,Indonesia,Agent Chris,2,47.46,69,28.16,1739.2
+LEAD-1040,2025-06-04,2025-06-04,2025-06-08,Lost,0,,Timeline Issue,Email,Campaign A,Education,Philippines,Agent Chris,1,36.53,42,35.69,0.0
+LEAD-1041,2025-03-01,2025-03-07,2025-03-10,Engaged,0,,,Referral,Campaign D,Healthcare,Singapore,Agent Dana,4,4.1,45,44.56,0.0
+LEAD-1042,2025-05-06,2025-05-06,2025-05-17,Qualified,0,,,Events,Campaign A,Technology,Philippines,Agent Anna,6,9.93,49,28.4,0.0
+LEAD-1043,2025-03-04,2025-03-09,2025-03-12,Qualified,0,,,Website,Campaign C,Education,Singapore,Agent Anna,4,46.91,43,6.51,0.0
+LEAD-1044,2025-03-02,2025-03-11,2025-03-30,Qualified,0,,,Facebook Ads,Campaign C,Finance,Indonesia,Agent Anna,2,20.47,54,40.55,0.0
+LEAD-1045,2025-03-13,2025-03-17,2025-03-27,Engaged,0,,,Website,Campaign D,Education,Malaysia,Agent Anna,5,41.83,53,25.37,0.0
+LEAD-1046,2025-05-22,2025-05-27,2025-06-11,Engaged,0,,,Website,Campaign C,Retail,Malaysia,Agent Dana,1,9.13,79,7.03,0.0
+LEAD-1047,2025-06-06,2025-06-16,2025-07-01,Engaged,0,,,Website,Campaign A,Retail,Singapore,Agent Chris,2,12.42,53,21.9,0.0
+LEAD-1048,2025-05-06,2025-05-15,2025-05-22,New,0,,,Facebook Ads,Campaign D,Education,Indonesia,Agent Ben,3,6.82,70,6.32,0.0
+LEAD-1049,2025-01-07,2025-01-10,2025-01-11,Converted,1,2025-01-14,,LinkedIn,Campaign A,Education,Singapore,Agent Anna,5,33.73,10,44.21,469.2
+LEAD-1050,2025-02-07,2025-02-17,2025-02-28,Lost,0,,No Budget,Website,Campaign A,Finance,Philippines,Agent Anna,3,41.18,10,40.01,0.0
+LEAD-1051,2025-03-19,2025-03-27,2025-03-29,Converted,1,2025-03-30,,Events,Campaign B,Retail,Singapore,Agent Anna,4,43.33,72,22.44,720.36
+LEAD-1052,2025-05-16,2025-05-26,2025-05-31,Engaged,0,,,Facebook Ads,Campaign D,Healthcare,Malaysia,Agent Ben,1,4.8,21,31.13,0.0
+LEAD-1053,2025-02-04,2025-02-08,2025-02-25,New,0,,,LinkedIn,Campaign B,Education,Indonesia,Agent Anna,0,2.73,27,17.81,0.0
+LEAD-1054,2025-03-17,2025-03-21,2025-04-08,Qualified,0,,,LinkedIn,Campaign A,Finance,Philippines,Agent Dana,6,25.27,31,19.4,0.0
+LEAD-1055,2025-05-19,2025-05-25,2025-05-28,New,0,,,Website,Campaign D,Education,Singapore,Agent Anna,6,44.56,77,10.5,0.0
+LEAD-1056,2025-02-13,2025-02-23,2025-03-06,Engaged,0,,,Website,Campaign C,Finance,Indonesia,Agent Dana,2,22.13,43,28.69,0.0
+LEAD-1057,2025-04-21,2025-04-28,2025-05-10,Qualified,0,,,Events,Campaign C,Finance,Philippines,Agent Anna,2,33.89,59,8.67,0.0
+LEAD-1058,2025-05-09,2025-05-10,2025-05-26,Engaged,0,,,Referral,Campaign B,Finance,Indonesia,Agent Ben,1,19.2,72,25.55,0.0
+LEAD-1059,2025-05-03,2025-05-06,2025-05-20,Lost,0,,No Interest,Email,Campaign B,Education,Indonesia,Agent Dana,6,35.42,42,15.99,0.0
+LEAD-1060,2025-05-02,2025-05-04,2025-05-20,Lost,0,,No Response,Email,Campaign C,Finance,Malaysia,Agent Anna,5,20.48,96,32.89,0.0
+LEAD-1061,2025-03-07,2025-03-09,2025-03-26,Qualified,0,,,Referral,Campaign C,Retail,Malaysia,Agent Chris,3,29.34,68,11.88,0.0
+LEAD-1062,2025-06-11,2025-06-15,2025-07-05,Engaged,0,,,LinkedIn,Campaign C,Technology,Malaysia,Agent Chris,3,4.77,87,40.51,0.0
+LEAD-1063,2025-02-15,2025-02-17,2025-02-27,Converted,1,2025-03-03,,Events,Campaign D,Retail,Philippines,Agent Ben,2,25.42,19,39.02,238.67
+LEAD-1064,2025-03-14,2025-03-20,2025-04-09,Converted,1,2025-04-12,,Website,Campaign C,Education,Philippines,Agent Chris,4,45.61,20,44.2,1639.86
+LEAD-1065,2025-05-29,2025-06-08,2025-06-09,Engaged,0,,,Email,Campaign B,Retail,Indonesia,Agent Chris,1,27.61,18,40.71,0.0
+LEAD-1066,2025-05-02,2025-05-03,2025-05-11,Lost,0,,No Response,Email,Campaign B,Technology,Indonesia,Agent Chris,3,24.99,18,22.31,0.0
+LEAD-1067,2025-02-04,2025-02-14,2025-02-27,Qualified,0,,,Email,Campaign C,Education,Philippines,Agent Ben,4,42.07,34,36.97,0.0
+LEAD-1068,2025-05-16,2025-05-23,2025-06-05,Qualified,0,,,Referral,Campaign A,Education,Malaysia,Agent Dana,6,16.04,49,21.42,0.0
+LEAD-1069,2025-03-09,2025-03-17,2025-03-21,Engaged,0,,,Referral,Campaign D,Retail,Indonesia,Agent Ben,5,6.86,40,18.71,0.0
+LEAD-1070,2025-01-07,2025-01-10,2025-01-25,Converted,1,2025-01-27,,LinkedIn,Campaign B,Retail,Philippines,Agent Chris,4,39.11,96,18.06,658.26
+LEAD-1071,2025-02-28,2025-03-05,2025-03-05,Lost,0,,Timeline Issue,Referral,Campaign B,Finance,Indonesia,Agent Dana,3,10.55,27,27.59,0.0
+LEAD-1072,2025-05-23,2025-05-30,2025-06-19,Lost,0,,No Interest,Facebook Ads,Campaign D,Retail,Philippines,Agent Chris,5,30.03,79,24.05,0.0
+LEAD-1073,2025-03-04,2025-03-09,2025-03-21,Converted,1,2025-03-26,,Referral,Campaign B,Finance,Malaysia,Agent Anna,1,46.4,38,29.1,1468.21
+LEAD-1074,2025-01-28,2025-02-06,2025-02-18,Converted,1,2025-02-21,,LinkedIn,Campaign C,Education,Singapore,Agent Ben,1,16.11,11,34.72,1786.06
+LEAD-1075,2025-04-14,2025-04-14,2025-05-04,New,0,,,LinkedIn,Campaign A,Technology,Philippines,Agent Chris,4,38.38,43,9.47,0.0
+LEAD-1076,2025-04-14,2025-04-17,2025-04-29,Qualified,0,,,Referral,Campaign C,Healthcare,Malaysia,Agent Ben,0,14.53,77,6.77,0.0
+LEAD-1077,2025-06-09,2025-06-19,2025-06-27,Converted,1,2025-06-28,,Events,Campaign B,Education,Singapore,Agent Ben,5,42.91,18,7.98,1132.31
+LEAD-1078,2025-05-07,2025-05-15,2025-05-25,New,0,,,Facebook Ads,Campaign A,Retail,Philippines,Agent Ben,6,7.85,99,22.29,0.0
+LEAD-1079,2025-03-18,2025-03-19,2025-03-19,Lost,0,,No Response,Referral,Campaign A,Retail,Singapore,Agent Anna,6,9.35,89,21.77,0.0
+LEAD-1080,2025-05-25,2025-05-28,2025-06-11,New,0,,,Facebook Ads,Campaign B,Education,Philippines,Agent Dana,0,45.31,35,24.92,0.0
+LEAD-1081,2025-02-10,2025-02-17,2025-02-26,Converted,1,2025-03-01,,Facebook Ads,Campaign D,Healthcare,Indonesia,Agent Ben,1,4.31,38,23.97,1203.06
+LEAD-1082,2025-04-09,2025-04-11,2025-04-29,Lost,0,,Competitor,Events,Campaign D,Finance,Indonesia,Agent Chris,1,31.31,37,47.25,0.0
+LEAD-1083,2025-03-23,2025-03-28,2025-04-17,Lost,0,,No Interest,LinkedIn,Campaign B,Education,Indonesia,Agent Dana,5,39.05,24,42.49,0.0
+LEAD-1084,2025-01-21,2025-01-21,2025-02-10,Converted,1,2025-02-14,,Website,Campaign D,Finance,Philippines,Agent Ben,0,42.51,74,8.16,784.9
+LEAD-1085,2025-01-14,2025-01-19,2025-01-21,Engaged,0,,,Email,Campaign C,Healthcare,Indonesia,Agent Dana,3,39.66,29,47.82,0.0
+LEAD-1086,2025-05-24,2025-05-27,2025-06-14,Lost,0,,No Budget,LinkedIn,Campaign D,Technology,Singapore,Agent Anna,3,34.28,62,32.3,0.0
+LEAD-1087,2025-04-10,2025-04-16,2025-05-06,Engaged,0,,,Email,Campaign C,Technology,Indonesia,Agent Dana,5,8.93,74,33.36,0.0
+LEAD-1088,2025-04-10,2025-04-13,2025-04-28,Converted,1,2025-04-30,,Facebook Ads,Campaign A,Education,Singapore,Agent Anna,3,32.01,43,7.17,1427.87
+LEAD-1089,2025-02-15,2025-02-15,2025-02-20,Lost,0,,Timeline Issue,Website,Campaign A,Finance,Philippines,Agent Anna,4,40.39,98,14.44,0.0
+LEAD-1090,2025-01-23,2025-01-28,2025-02-13,Lost,0,,Timeline Issue,Facebook Ads,Campaign B,Technology,Philippines,Agent Anna,1,35.1,17,29.83,0.0
+LEAD-1091,2025-01-24,2025-01-25,2025-02-10,Qualified,0,,,Email,Campaign B,Retail,Singapore,Agent Anna,3,26.58,36,15.93,0.0
+LEAD-1092,2025-05-28,2025-05-29,2025-06-02,Converted,1,2025-06-05,,LinkedIn,Campaign D,Technology,Singapore,Agent Chris,3,25.65,80,49.93,630.46
+LEAD-1093,2025-05-21,2025-05-29,2025-06-17,Lost,0,,No Budget,Facebook Ads,Campaign B,Finance,Philippines,Agent Ben,5,13.87,94,46.51,0.0
+LEAD-1094,2025-06-01,2025-06-11,2025-06-12,Engaged,0,,,Referral,Campaign A,Education,Indonesia,Agent Anna,4,36.5,18,27.76,0.0
+LEAD-1095,2025-02-24,2025-02-25,2025-03-15,Qualified,0,,,Referral,Campaign D,Education,Indonesia,Agent Chris,1,4.3,79,46.88,0.0
+LEAD-1096,2025-05-17,2025-05-18,2025-06-03,Qualified,0,,,Facebook Ads,Campaign B,Education,Singapore,Agent Chris,1,46.75,40,10.11,0.0
+LEAD-1097,2025-02-06,2025-02-13,2025-02-22,Lost,0,,No Budget,LinkedIn,Campaign D,Retail,Malaysia,Agent Ben,5,25.01,71,9.79,0.0
+LEAD-1098,2025-04-23,2025-04-25,2025-05-04,Lost,0,,Timeline Issue,Website,Campaign D,Finance,Singapore,Agent Chris,5,30.33,86,30.55,0.0
+LEAD-1099,2025-06-23,2025-06-26,2025-07-12,New,0,,,LinkedIn,Campaign A,Retail,Singapore,Agent Ben,1,21.6,32,32.74,0.0
+LEAD-1100,2025-05-11,2025-05-18,2025-06-07,Converted,1,2025-06-10,,Referral,Campaign C,Technology,Malaysia,Agent Dana,6,45.42,15,45.14,1768.35
+LEAD-1101,2025-02-16,2025-02-24,2025-03-03,Lost,0,,Competitor,LinkedIn,Campaign B,Retail,Indonesia,Agent Dana,0,12.88,84,13.14,0.0
+LEAD-1102,2025-04-18,2025-04-20,2025-04-28,Engaged,0,,,LinkedIn,Campaign C,Finance,Singapore,Agent Ben,2,45.22,41,13.55,0.0
+LEAD-1103,2025-04-03,2025-04-07,2025-04-13,Lost,0,,No Response,Referral,Campaign D,Finance,Indonesia,Agent Ben,6,30.95,39,33.12,0.0
+LEAD-1104,2025-03-13,2025-03-22,2025-04-08,Converted,1,2025-04-12,,Facebook Ads,Campaign A,Education,Philippines,Agent Anna,4,47.45,87,28.46,1123.35
+LEAD-1105,2025-06-20,2025-06-25,2025-07-01,New,0,,,Facebook Ads,Campaign D,Education,Singapore,Agent Anna,5,9.13,20,29.29,0.0
+LEAD-1106,2025-06-10,2025-06-20,2025-07-03,Qualified,0,,,Email,Campaign D,Education,Philippines,Agent Chris,2,29.59,89,11.53,0.0
+LEAD-1107,2025-03-11,2025-03-12,2025-03-14,Qualified,0,,,Events,Campaign C,Education,Malaysia,Agent Chris,3,46.68,62,5.11,0.0
+LEAD-1108,2025-02-13,2025-02-18,2025-03-05,Engaged,0,,,Facebook Ads,Campaign B,Technology,Philippines,Agent Dana,0,4.64,54,23.74,0.0
+LEAD-1109,2025-05-17,2025-05-25,2025-05-26,Converted,1,2025-05-30,,LinkedIn,Campaign B,Technology,Malaysia,Agent Ben,3,9.1,10,21.36,334.92
+LEAD-1110,2025-06-03,2025-06-07,2025-06-07,Converted,1,2025-06-08,,Referral,Campaign B,Retail,Philippines,Agent Chris,4,12.67,47,39.55,1118.18
+LEAD-1111,2025-05-21,2025-05-30,2025-06-10,Qualified,0,,,Email,Campaign D,Healthcare,Malaysia,Agent Anna,3,9.1,99,48.82,0.0
+LEAD-1112,2025-01-29,2025-02-06,2025-02-24,Converted,1,2025-03-01,,LinkedIn,Campaign D,Education,Philippines,Agent Chris,0,23.06,69,23.86,279.36
+LEAD-1113,2025-03-13,2025-03-14,2025-03-20,Engaged,0,,,Email,Campaign D,Retail,Philippines,Agent Dana,2,18.13,57,38.38,0.0
+LEAD-1114,2025-01-25,2025-01-29,2025-02-01,Lost,0,,No Budget,Email,Campaign C,Healthcare,Malaysia,Agent Chris,4,32.79,12,49.77,0.0
+LEAD-1115,2025-05-18,2025-05-20,2025-06-01,Converted,1,2025-06-03,,Events,Campaign B,Finance,Malaysia,Agent Chris,1,23.67,47,42.85,329.47
+LEAD-1116,2025-06-07,2025-06-17,2025-06-30,Engaged,0,,,Email,Campaign D,Finance,Indonesia,Agent Anna,2,28.74,52,49.96,0.0
+LEAD-1117,2025-03-25,2025-03-26,2025-04-09,Lost,0,,No Response,Email,Campaign B,Finance,Philippines,Agent Chris,0,43.57,22,25.19,0.0
+LEAD-1118,2025-02-26,2025-03-02,2025-03-22,Converted,1,2025-03-25,,Email,Campaign C,Technology,Indonesia,Agent Chris,1,32.74,52,33.51,428.98
+LEAD-1119,2025-01-03,2025-01-05,2025-01-21,Engaged,0,,,LinkedIn,Campaign B,Finance,Philippines,Agent Ben,2,6.92,32,34.47,0.0
+LEAD-1120,2025-06-27,2025-07-07,2025-07-10,Converted,1,2025-07-11,,Website,Campaign C,Healthcare,Malaysia,Agent Anna,0,18.19,90,45.42,877.61
+LEAD-1121,2025-02-06,2025-02-07,2025-02-24,Qualified,0,,,Website,Campaign A,Healthcare,Malaysia,Agent Chris,1,35.99,58,29.83,0.0
+LEAD-1122,2025-04-16,2025-04-18,2025-04-21,Converted,1,2025-04-22,,Facebook Ads,Campaign A,Retail,Singapore,Agent Ben,4,45.85,100,37.08,1766.75
+LEAD-1123,2025-04-29,2025-05-08,2025-05-23,Converted,1,2025-05-28,,Referral,Campaign D,Technology,Indonesia,Agent Chris,4,44.77,66,47.1,1492.07
+LEAD-1124,2025-03-05,2025-03-12,2025-03-22,Engaged,0,,,Referral,Campaign D,Healthcare,Singapore,Agent Ben,6,44.86,91,36.53,0.0
+LEAD-1125,2025-06-26,2025-06-29,2025-07-02,Lost,0,,No Budget,Website,Campaign D,Retail,Indonesia,Agent Chris,6,32.21,24,44.07,0.0
+LEAD-1126,2025-04-17,2025-04-25,2025-05-12,Qualified,0,,,Referral,Campaign D,Retail,Philippines,Agent Dana,4,29.48,87,38.89,0.0
+LEAD-1127,2025-01-07,2025-01-13,2025-01-30,Converted,1,2025-02-01,,Facebook Ads,Campaign D,Healthcare,Indonesia,Agent Dana,5,23.99,27,42.13,1202.47
+LEAD-1128,2025-04-20,2025-04-23,2025-05-01,Converted,1,2025-05-03,,LinkedIn,Campaign B,Healthcare,Philippines,Agent Chris,5,41.09,48,49.85,1270.39
+LEAD-1129,2025-03-15,2025-03-15,2025-03-24,Lost,0,,No Interest,Email,Campaign D,Retail,Philippines,Agent Dana,3,27.51,22,24.97,0.0
+LEAD-1130,2025-02-26,2025-03-01,2025-03-04,Lost,0,,No Interest,LinkedIn,Campaign D,Healthcare,Philippines,Agent Dana,6,17.24,88,33.98,0.0
+LEAD-1131,2025-04-30,2025-05-09,2025-05-19,Qualified,0,,,Website,Campaign A,Technology,Singapore,Agent Anna,6,26.65,97,18.58,0.0
+LEAD-1132,2025-01-25,2025-01-30,2025-02-09,Engaged,0,,,Referral,Campaign B,Finance,Indonesia,Agent Ben,1,19.25,70,42.63,0.0
+LEAD-1133,2025-05-30,2025-06-07,2025-06-11,Qualified,0,,,Website,Campaign D,Healthcare,Singapore,Agent Ben,1,28.79,67,40.13,0.0
+LEAD-1134,2025-02-24,2025-03-06,2025-03-22,Lost,0,,Competitor,Referral,Campaign D,Finance,Indonesia,Agent Ben,3,42.22,10,20.25,0.0
+LEAD-1135,2025-06-29,2025-07-01,2025-07-08,Qualified,0,,,Referral,Campaign D,Healthcare,Philippines,Agent Ben,3,18.29,72,23.71,0.0
+LEAD-1136,2025-06-26,2025-07-03,2025-07-21,Engaged,0,,,Facebook Ads,Campaign B,Finance,Indonesia,Agent Chris,6,38.98,73,42.15,0.0
+LEAD-1137,2025-03-03,2025-03-04,2025-03-07,Engaged,0,,,LinkedIn,Campaign A,Finance,Malaysia,Agent Ben,2,30.45,10,26.34,0.0
+LEAD-1138,2025-04-17,2025-04-22,2025-04-28,Engaged,0,,,Email,Campaign D,Healthcare,Singapore,Agent Chris,5,36.69,50,12.85,0.0
+LEAD-1139,2025-05-02,2025-05-05,2025-05-20,Qualified,0,,,Email,Campaign B,Education,Singapore,Agent Chris,5,28.7,65,34.34,0.0
+LEAD-1140,2025-02-16,2025-02-20,2025-03-02,Qualified,0,,,LinkedIn,Campaign D,Retail,Singapore,Agent Dana,1,40.42,60,47.14,0.0
+LEAD-1141,2025-04-07,2025-04-16,2025-04-19,Converted,1,2025-04-23,,Events,Campaign A,Finance,Malaysia,Agent Dana,5,3.56,16,14.23,1324.58
+LEAD-1142,2025-01-13,2025-01-15,2025-01-28,Lost,0,,No Response,Events,Campaign C,Finance,Malaysia,Agent Anna,6,45.13,50,39.45,0.0
+LEAD-1143,2025-03-10,2025-03-19,2025-03-27,Converted,1,2025-03-28,,Website,Campaign B,Education,Singapore,Agent Dana,6,21.26,89,33.03,1473.75
+LEAD-1144,2025-05-31,2025-06-07,2025-06-13,Lost,0,,Competitor,Facebook Ads,Campaign B,Finance,Indonesia,Agent Ben,2,19.71,31,13.3,0.0
+LEAD-1145,2025-03-08,2025-03-18,2025-04-03,Engaged,0,,,Website,Campaign A,Technology,Singapore,Agent Ben,0,17.84,94,40.22,0.0
+LEAD-1146,2025-04-25,2025-05-01,2025-05-13,Converted,1,2025-05-16,,Email,Campaign A,Retail,Singapore,Agent Anna,2,29.7,66,46.9,1284.06
+LEAD-1147,2025-06-13,2025-06-14,2025-06-25,Lost,0,,No Response,Website,Campaign A,Finance,Singapore,Agent Dana,0,29.73,68,22.64,0.0
+LEAD-1148,2025-02-07,2025-02-09,2025-02-23,Converted,1,2025-02-27,,Email,Campaign C,Technology,Philippines,Agent Dana,2,31.17,85,11.35,1964.12
+LEAD-1149,2025-03-08,2025-03-16,2025-03-16,Qualified,0,,,LinkedIn,Campaign A,Retail,Philippines,Agent Dana,1,19.91,96,14.11,0.0
+LEAD-1150,2025-05-07,2025-05-09,2025-05-29,Lost,0,,Competitor,Website,Campaign D,Finance,Singapore,Agent Ben,5,23.87,31,12.1,0.0
+LEAD-1151,2025-01-22,2025-01-31,2025-02-10,Converted,1,2025-02-15,,Email,Campaign B,Finance,Singapore,Agent Ben,3,8.23,43,22.3,1088.83
+LEAD-1152,2025-06-24,2025-06-27,2025-06-29,Engaged,0,,,Website,Campaign D,Education,Malaysia,Agent Dana,5,12.04,89,10.26,0.0
+LEAD-1153,2025-05-05,2025-05-05,2025-05-14,Lost,0,,Competitor,Facebook Ads,Campaign B,Technology,Philippines,Agent Chris,4,27.49,86,47.97,0.0
+LEAD-1154,2025-01-04,2025-01-11,2025-01-30,Converted,1,2025-02-01,,Website,Campaign C,Retail,Malaysia,Agent Dana,6,28.2,95,48.95,814.46
+LEAD-1155,2025-02-06,2025-02-10,2025-02-20,New,0,,,LinkedIn,Campaign B,Finance,Malaysia,Agent Anna,6,36.57,50,19.01,0.0
+LEAD-1156,2025-01-29,2025-02-08,2025-02-22,Qualified,0,,,LinkedIn,Campaign B,Education,Indonesia,Agent Anna,0,8.1,23,34.71,0.0
+LEAD-1157,2025-02-27,2025-02-27,2025-02-28,Qualified,0,,,Email,Campaign B,Healthcare,Singapore,Agent Chris,0,47.78,41,39.05,0.0
+LEAD-1158,2025-01-21,2025-01-27,2025-02-03,Qualified,0,,,Website,Campaign A,Finance,Indonesia,Agent Anna,0,5.76,69,38.02,0.0
+LEAD-1159,2025-02-12,2025-02-22,2025-03-03,Converted,1,2025-03-05,,Facebook Ads,Campaign A,Healthcare,Philippines,Agent Anna,6,23.94,69,15.77,1520.9
+LEAD-1160,2025-03-31,2025-04-02,2025-04-07,Lost,0,,No Response,LinkedIn,Campaign D,Retail,Philippines,Agent Chris,5,25.07,91,21.01,0.0
+LEAD-1161,2025-05-20,2025-05-24,2025-05-29,New,0,,,Referral,Campaign A,Education,Malaysia,Agent Chris,1,41.7,19,13.99,0.0
+LEAD-1162,2025-02-15,2025-02-17,2025-02-17,New,0,,,Referral,Campaign A,Finance,Indonesia,Agent Anna,0,19.54,95,16.07,0.0
+LEAD-1163,2025-01-02,2025-01-10,2025-01-24,Lost,0,,Timeline Issue,Email,Campaign C,Retail,Indonesia,Agent Ben,5,40.12,18,21.7,0.0
+LEAD-1164,2025-02-22,2025-03-03,2025-03-07,New,0,,,Referral,Campaign C,Education,Indonesia,Agent Ben,0,46.11,68,10.81,0.0
+LEAD-1165,2025-02-09,2025-02-14,2025-02-25,Engaged,0,,,LinkedIn,Campaign C,Retail,Philippines,Agent Ben,1,38.16,36,48.94,0.0
+LEAD-1166,2025-05-19,2025-05-23,2025-05-31,Engaged,0,,,Facebook Ads,Campaign C,Education,Singapore,Agent Dana,6,18.7,48,18.8,0.0
+LEAD-1167,2025-02-06,2025-02-15,2025-03-03,Lost,0,,Timeline Issue,Facebook Ads,Campaign D,Technology,Singapore,Agent Dana,0,25.91,83,48.81,0.0
+LEAD-1168,2025-06-04,2025-06-04,2025-06-24,Qualified,0,,,LinkedIn,Campaign B,Technology,Malaysia,Agent Anna,4,5.08,49,16.01,0.0
+LEAD-1169,2025-04-15,2025-04-25,2025-05-05,Lost,0,,No Budget,Website,Campaign B,Education,Singapore,Agent Anna,3,18.77,67,8.66,0.0
+LEAD-1170,2025-04-24,2025-05-02,2025-05-10,Qualified,0,,,Referral,Campaign D,Healthcare,Philippines,Agent Anna,3,22.06,100,14.63,0.0
+LEAD-1171,2025-01-29,2025-02-02,2025-02-12,Converted,1,2025-02-14,,LinkedIn,Campaign D,Finance,Malaysia,Agent Chris,0,22.35,59,28.92,1021.06
+LEAD-1172,2025-02-26,2025-02-27,2025-03-14,Converted,1,2025-03-19,,Events,Campaign C,Technology,Singapore,Agent Chris,3,32.45,67,45.34,1582.22
+LEAD-1173,2025-01-12,2025-01-17,2025-01-26,Lost,0,,Competitor,Facebook Ads,Campaign B,Technology,Philippines,Agent Chris,2,33.45,73,39.17,0.0
+LEAD-1174,2025-05-05,2025-05-13,2025-05-21,Qualified,0,,,Referral,Campaign B,Healthcare,Indonesia,Agent Ben,1,34.28,12,45.7,0.0
+LEAD-1175,2025-02-11,2025-02-13,2025-02-23,Qualified,0,,,Email,Campaign B,Technology,Indonesia,Agent Ben,6,7.12,38,17.46,0.0
+LEAD-1176,2025-06-26,2025-07-05,2025-07-07,Engaged,0,,,LinkedIn,Campaign C,Retail,Singapore,Agent Chris,6,9.49,70,39.99,0.0
+LEAD-1177,2025-05-26,2025-06-02,2025-06-11,Converted,1,2025-06-12,,Email,Campaign B,Retail,Philippines,Agent Ben,4,22.16,22,25.31,1296.03
+LEAD-1178,2025-05-27,2025-06-05,2025-06-25,Converted,1,2025-06-26,,Email,Campaign C,Retail,Singapore,Agent Anna,4,39.03,15,15.55,1844.12
+LEAD-1179,2025-01-12,2025-01-17,2025-01-18,Converted,1,2025-01-20,,Referral,Campaign C,Finance,Indonesia,Agent Anna,0,30.05,23,28.08,379.85
+LEAD-1180,2025-05-01,2025-05-02,2025-05-22,Qualified,0,,,Website,Campaign D,Finance,Philippines,Agent Ben,3,23.76,11,16.99,0.0
+LEAD-1181,2025-05-08,2025-05-14,2025-06-03,Converted,1,2025-06-06,,Facebook Ads,Campaign C,Education,Singapore,Agent Chris,5,2.02,11,23.73,762.89
+LEAD-1182,2025-06-26,2025-06-26,2025-06-29,Lost,0,,Competitor,Facebook Ads,Campaign D,Technology,Indonesia,Agent Anna,0,12.49,52,17.0,0.0
+LEAD-1183,2025-06-15,2025-06-19,2025-06-20,Qualified,0,,,Email,Campaign D,Technology,Singapore,Agent Ben,1,23.55,65,39.5,0.0
+LEAD-1184,2025-03-16,2025-03-20,2025-04-06,Converted,1,2025-04-09,,LinkedIn,Campaign B,Healthcare,Philippines,Agent Chris,2,21.94,69,12.49,1858.62
+LEAD-1185,2025-01-07,2025-01-14,2025-01-27,Lost,0,,No Interest,Website,Campaign A,Finance,Malaysia,Agent Anna,1,31.87,37,46.87,0.0
+LEAD-1186,2025-01-19,2025-01-27,2025-02-02,Qualified,0,,,Email,Campaign B,Technology,Malaysia,Agent Ben,1,16.45,43,11.44,0.0
+LEAD-1187,2025-05-03,2025-05-06,2025-05-24,Qualified,0,,,Events,Campaign C,Finance,Indonesia,Agent Chris,2,20.15,66,20.74,0.0
+LEAD-1188,2025-05-14,2025-05-15,2025-05-17,Engaged,0,,,LinkedIn,Campaign D,Retail,Indonesia,Agent Ben,1,34.55,15,7.25,0.0
+LEAD-1189,2025-06-06,2025-06-16,2025-06-18,Converted,1,2025-06-22,,Referral,Campaign C,Finance,Malaysia,Agent Dana,2,38.27,19,48.03,968.7
+LEAD-1190,2025-06-30,2025-07-01,2025-07-10,Qualified,0,,,Email,Campaign A,Retail,Singapore,Agent Ben,4,8.36,37,5.67,0.0
+LEAD-1191,2025-01-17,2025-01-23,2025-02-03,Lost,0,,No Budget,Facebook Ads,Campaign D,Education,Philippines,Agent Chris,3,33.81,15,5.96,0.0
+LEAD-1192,2025-06-15,2025-06-16,2025-07-03,Lost,0,,No Budget,Email,Campaign C,Education,Malaysia,Agent Dana,4,5.78,90,13.01,0.0
+LEAD-1193,2025-04-28,2025-05-07,2025-05-26,Qualified,0,,,Email,Campaign A,Finance,Indonesia,Agent Ben,0,19.11,14,28.75,0.0
+LEAD-1194,2025-06-05,2025-06-07,2025-06-20,Converted,1,2025-06-25,,Events,Campaign D,Healthcare,Malaysia,Agent Ben,1,16.78,10,44.49,1074.09
+LEAD-1195,2025-02-25,2025-02-26,2025-03-11,Qualified,0,,,LinkedIn,Campaign A,Education,Singapore,Agent Ben,2,32.15,39,10.35,0.0
+LEAD-1196,2025-05-18,2025-05-21,2025-05-30,Qualified,0,,,Website,Campaign D,Finance,Malaysia,Agent Ben,3,37.69,80,10.2,0.0
+LEAD-1197,2025-06-12,2025-06-18,2025-06-29,Lost,0,,Competitor,Referral,Campaign D,Healthcare,Singapore,Agent Anna,0,13.73,82,29.96,0.0
+LEAD-1198,2025-05-24,2025-05-25,2025-06-07,Converted,1,2025-06-10,,Email,Campaign C,Healthcare,Malaysia,Agent Dana,0,34.11,25,44.66,542.17
+LEAD-1199,2025-03-14,2025-03-16,2025-03-27,Lost,0,,Competitor,LinkedIn,Campaign A,Technology,Malaysia,Agent Anna,1,26.74,68,22.83,0.0
+LEAD-1200,2025-03-18,2025-03-22,2025-04-08,Lost,0,,Timeline Issue,Website,Campaign C,Finance,Malaysia,Agent Dana,1,33.55,99,29.62,0.0
+LEAD-1201,2025-05-31,2025-06-06,2025-06-21,Converted,1,2025-06-22,,Referral,Campaign B,Education,Singapore,Agent Chris,1,6.25,38,15.98,871.65
+LEAD-1202,2025-03-06,2025-03-15,2025-03-23,Lost,0,,No Budget,Website,Campaign A,Healthcare,Malaysia,Agent Dana,5,33.83,37,35.02,0.0
+LEAD-1203,2025-01-10,2025-01-15,2025-01-19,New,0,,,Referral,Campaign A,Finance,Philippines,Agent Chris,4,29.74,39,27.84,0.0
+LEAD-1204,2025-01-09,2025-01-16,2025-01-31,Converted,1,2025-02-03,,LinkedIn,Campaign B,Finance,Malaysia,Agent Chris,3,42.11,50,13.41,1534.19
+LEAD-1205,2025-05-13,2025-05-22,2025-05-25,Qualified,0,,,Email,Campaign C,Technology,Singapore,Agent Anna,3,13.07,77,48.59,0.0
+LEAD-1206,2025-04-27,2025-04-27,2025-05-16,Lost,0,,No Interest,Facebook Ads,Campaign B,Healthcare,Indonesia,Agent Dana,3,37.94,99,37.42,0.0
+LEAD-1207,2025-01-04,2025-01-11,2025-01-30,Converted,1,2025-02-02,,Referral,Campaign D,Education,Indonesia,Agent Ben,5,25.94,39,9.87,1812.95
+LEAD-1208,2025-06-12,2025-06-13,2025-06-15,Lost,0,,Timeline Issue,LinkedIn,Campaign C,Healthcare,Malaysia,Agent Chris,4,26.73,81,31.98,0.0
+LEAD-1209,2025-03-30,2025-04-05,2025-04-13,Converted,1,2025-04-14,,Facebook Ads,Campaign A,Finance,Malaysia,Agent Ben,3,7.79,52,23.26,1484.52
+LEAD-1210,2025-04-08,2025-04-17,2025-05-01,New,0,,,Email,Campaign D,Healthcare,Malaysia,Agent Chris,2,45.24,60,10.51,0.0
+LEAD-1211,2025-04-21,2025-04-27,2025-05-12,Engaged,0,,,Facebook Ads,Campaign C,Retail,Philippines,Agent Chris,0,2.81,69,43.85,0.0
+LEAD-1212,2025-04-07,2025-04-12,2025-05-01,Converted,1,2025-05-05,,Facebook Ads,Campaign B,Education,Singapore,Agent Ben,1,41.15,66,42.08,1058.8
+LEAD-1213,2025-05-04,2025-05-14,2025-05-17,Lost,0,,No Response,Website,Campaign A,Healthcare,Philippines,Agent Ben,5,14.83,63,13.83,0.0
+LEAD-1214,2025-06-15,2025-06-25,2025-07-15,Lost,0,,No Interest,Website,Campaign C,Finance,Indonesia,Agent Ben,3,36.95,28,20.45,0.0
+LEAD-1215,2025-01-26,2025-02-04,2025-02-23,Engaged,0,,,Referral,Campaign A,Education,Indonesia,Agent Ben,0,4.51,31,37.4,0.0
+LEAD-1216,2025-06-07,2025-06-13,2025-06-15,New,0,,,LinkedIn,Campaign C,Retail,Philippines,Agent Chris,4,5.68,55,15.67,0.0
+LEAD-1217,2025-02-11,2025-02-21,2025-03-02,Lost,0,,No Response,Facebook Ads,Campaign B,Education,Singapore,Agent Ben,5,3.97,98,14.78,0.0
+LEAD-1218,2025-06-02,2025-06-10,2025-06-11,Converted,1,2025-06-13,,LinkedIn,Campaign B,Technology,Philippines,Agent Anna,2,38.52,32,31.32,700.34
+LEAD-1219,2025-04-12,2025-04-15,2025-04-18,Engaged,0,,,Referral,Campaign D,Retail,Malaysia,Agent Dana,0,44.36,91,31.86,0.0
+LEAD-1220,2025-03-12,2025-03-12,2025-03-25,Engaged,0,,,LinkedIn,Campaign D,Technology,Indonesia,Agent Ben,0,26.0,87,46.83,0.0
+LEAD-1221,2025-01-20,2025-01-21,2025-01-21,New,0,,,Website,Campaign A,Technology,Philippines,Agent Anna,1,27.62,21,19.61,0.0
+LEAD-1222,2025-03-28,2025-04-04,2025-04-15,Engaged,0,,,Website,Campaign B,Technology,Philippines,Agent Dana,5,33.3,66,19.34,0.0
+LEAD-1223,2025-04-19,2025-04-25,2025-05-09,Lost,0,,No Response,Facebook Ads,Campaign A,Healthcare,Indonesia,Agent Dana,4,15.36,24,26.76,0.0
+LEAD-1224,2025-04-17,2025-04-23,2025-04-28,Lost,0,,No Budget,Referral,Campaign C,Technology,Indonesia,Agent Ben,5,21.01,11,33.76,0.0
+LEAD-1225,2025-02-12,2025-02-20,2025-03-09,Qualified,0,,,Events,Campaign A,Retail,Malaysia,Agent Dana,6,21.08,35,7.36,0.0
+LEAD-1226,2025-04-26,2025-05-02,2025-05-19,Engaged,0,,,LinkedIn,Campaign A,Education,Malaysia,Agent Anna,3,45.81,62,17.86,0.0
+LEAD-1227,2025-06-20,2025-06-21,2025-07-10,Lost,0,,No Interest,Facebook Ads,Campaign D,Healthcare,Malaysia,Agent Dana,4,43.0,74,48.56,0.0
+LEAD-1228,2025-06-26,2025-07-05,2025-07-22,Qualified,0,,,Facebook Ads,Campaign C,Healthcare,Philippines,Agent Anna,1,43.01,67,21.58,0.0
+LEAD-1229,2025-02-27,2025-03-04,2025-03-24,Lost,0,,No Interest,Events,Campaign D,Finance,Malaysia,Agent Anna,6,27.91,94,16.43,0.0
+LEAD-1230,2025-04-17,2025-04-21,2025-05-01,Lost,0,,Competitor,Website,Campaign B,Education,Singapore,Agent Ben,2,43.52,95,21.47,0.0
+LEAD-1231,2025-04-02,2025-04-12,2025-04-29,Converted,1,2025-04-30,,Email,Campaign D,Healthcare,Malaysia,Agent Dana,2,21.4,71,13.47,1932.9
+LEAD-1232,2025-02-18,2025-02-28,2025-03-07,Engaged,0,,,Events,Campaign D,Education,Singapore,Agent Chris,2,7.69,34,19.36,0.0
+LEAD-1233,2025-02-04,2025-02-14,2025-02-28,Converted,1,2025-03-05,,Referral,Campaign A,Retail,Singapore,Agent Chris,6,25.73,60,43.63,1184.3
+LEAD-1234,2025-03-23,2025-03-23,2025-04-10,Qualified,0,,,Email,Campaign D,Healthcare,Malaysia,Agent Chris,3,14.87,24,32.63,0.0
+LEAD-1235,2025-04-24,2025-05-01,2025-05-10,Qualified,0,,,Referral,Campaign D,Finance,Singapore,Agent Dana,5,8.43,98,14.02,0.0
+LEAD-1236,2025-03-12,2025-03-13,2025-03-28,Engaged,0,,,Facebook Ads,Campaign C,Technology,Philippines,Agent Ben,3,42.32,97,17.95,0.0
+LEAD-1237,2025-04-03,2025-04-06,2025-04-22,Converted,1,2025-04-27,,Events,Campaign B,Healthcare,Philippines,Agent Anna,3,41.81,39,5.17,885.13
+LEAD-1238,2025-06-23,2025-06-23,2025-06-27,Engaged,0,,,Events,Campaign C,Education,Malaysia,Agent Chris,3,28.59,30,17.52,0.0
+LEAD-1239,2025-04-27,2025-04-28,2025-05-09,Converted,1,2025-05-13,,Website,Campaign B,Education,Philippines,Agent Anna,5,24.53,13,42.18,1502.44
+LEAD-1240,2025-04-28,2025-04-29,2025-05-14,Qualified,0,,,LinkedIn,Campaign A,Education,Singapore,Agent Ben,0,41.81,14,32.85,0.0
+LEAD-1241,2025-06-26,2025-07-05,2025-07-11,Converted,1,2025-07-12,,Facebook Ads,Campaign B,Technology,Philippines,Agent Anna,2,34.03,48,36.51,1482.52
+LEAD-1242,2025-03-26,2025-03-27,2025-04-03,Engaged,0,,,Email,Campaign D,Retail,Singapore,Agent Anna,1,8.36,33,40.65,0.0
+LEAD-1243,2025-03-30,2025-03-30,2025-04-10,Converted,1,2025-04-13,,Email,Campaign B,Finance,Indonesia,Agent Ben,1,25.59,40,46.14,1882.65
+LEAD-1244,2025-03-28,2025-04-04,2025-04-13,Converted,1,2025-04-14,,Facebook Ads,Campaign B,Retail,Malaysia,Agent Ben,0,24.21,13,29.72,668.56
+LEAD-1245,2025-03-23,2025-03-25,2025-03-29,Engaged,0,,,Facebook Ads,Campaign A,Education,Singapore,Agent Dana,3,29.65,63,41.43,0.0
+LEAD-1246,2025-05-22,2025-05-26,2025-05-26,Engaged,0,,,Referral,Campaign B,Retail,Malaysia,Agent Anna,1,42.51,66,28.07,0.0
+LEAD-1247,2025-03-17,2025-03-26,2025-03-31,Lost,0,,No Budget,LinkedIn,Campaign B,Retail,Indonesia,Agent Chris,1,15.05,100,21.8,0.0
+LEAD-1248,2025-03-21,2025-03-23,2025-04-04,Converted,1,2025-04-05,,Events,Campaign B,Finance,Indonesia,Agent Anna,4,28.72,61,48.59,1954.2
+LEAD-1249,2025-03-28,2025-04-05,2025-04-24,Qualified,0,,,Events,Campaign A,Finance,Malaysia,Agent Dana,5,40.13,65,20.13,0.0
+LEAD-1250,2025-05-12,2025-05-17,2025-05-28,Qualified,0,,,Website,Campaign A,Healthcare,Malaysia,Agent Chris,5,15.09,70,28.68,0.0
+LEAD-1251,2025-06-26,2025-07-03,2025-07-16,Qualified,0,,,Facebook Ads,Campaign C,Finance,Philippines,Agent Anna,4,40.82,65,44.9,0.0
+LEAD-1252,2025-01-22,2025-01-31,2025-02-05,Lost,0,,Timeline Issue,LinkedIn,Campaign D,Retail,Philippines,Agent Ben,0,25.74,62,36.17,0.0
+LEAD-1253,2025-06-30,2025-07-04,2025-07-04,Lost,0,,Competitor,Referral,Campaign B,Retail,Malaysia,Agent Ben,4,43.48,13,47.0,0.0
+LEAD-1254,2025-06-21,2025-06-24,2025-06-27,Qualified,0,,,Facebook Ads,Campaign C,Technology,Malaysia,Agent Anna,1,24.64,37,25.63,0.0
+LEAD-1255,2025-03-28,2025-04-07,2025-04-10,Engaged,0,,,Email,Campaign D,Healthcare,Philippines,Agent Chris,0,16.73,88,9.8,0.0
+LEAD-1256,2025-06-05,2025-06-05,2025-06-20,Qualified,0,,,Email,Campaign A,Healthcare,Philippines,Agent Anna,6,29.97,99,26.22,0.0
+LEAD-1257,2025-06-07,2025-06-17,2025-06-18,Qualified,0,,,Events,Campaign C,Healthcare,Singapore,Agent Dana,5,16.9,17,33.55,0.0
+LEAD-1258,2025-01-15,2025-01-17,2025-01-28,Qualified,0,,,Website,Campaign C,Finance,Indonesia,Agent Dana,5,43.35,34,9.47,0.0
+LEAD-1259,2025-04-25,2025-05-05,2025-05-23,Engaged,0,,,Referral,Campaign D,Healthcare,Singapore,Agent Ben,0,11.49,22,5.88,0.0
+LEAD-1260,2025-03-28,2025-03-31,2025-04-11,Qualified,0,,,Events,Campaign B,Retail,Singapore,Agent Ben,5,13.53,88,47.44,0.0
+LEAD-1261,2025-05-11,2025-05-11,2025-05-28,New,0,,,Facebook Ads,Campaign D,Healthcare,Malaysia,Agent Anna,6,18.63,60,38.48,0.0
+LEAD-1262,2025-06-04,2025-06-10,2025-06-14,Qualified,0,,,LinkedIn,Campaign B,Education,Indonesia,Agent Anna,4,17.16,51,32.53,0.0
+LEAD-1263,2025-02-25,2025-03-04,2025-03-11,Engaged,0,,,Referral,Campaign A,Education,Indonesia,Agent Dana,2,3.45,15,29.49,0.0
+LEAD-1264,2025-06-15,2025-06-15,2025-07-04,Engaged,0,,,Website,Campaign A,Retail,Philippines,Agent Chris,6,30.41,26,37.59,0.0
+LEAD-1265,2025-04-29,2025-05-03,2025-05-04,Converted,1,2025-05-09,,LinkedIn,Campaign C,Retail,Indonesia,Agent Dana,1,20.35,84,42.86,1308.58
+LEAD-1266,2025-01-03,2025-01-06,2025-01-08,Qualified,0,,,Website,Campaign D,Education,Singapore,Agent Anna,3,39.54,41,22.45,0.0
+LEAD-1267,2025-01-10,2025-01-14,2025-01-15,Qualified,0,,,Events,Campaign A,Finance,Singapore,Agent Ben,0,44.13,47,11.7,0.0
+LEAD-1268,2025-02-23,2025-02-26,2025-03-11,Qualified,0,,,LinkedIn,Campaign C,Healthcare,Indonesia,Agent Chris,2,22.79,95,20.9,0.0
+LEAD-1269,2025-05-22,2025-05-28,2025-06-17,Engaged,0,,,Facebook Ads,Campaign C,Finance,Indonesia,Agent Anna,0,29.9,30,15.03,0.0
+LEAD-1270,2025-01-09,2025-01-18,2025-01-31,Lost,0,,No Response,Facebook Ads,Campaign B,Healthcare,Singapore,Agent Dana,3,33.5,78,16.79,0.0
+LEAD-1271,2025-06-04,2025-06-13,2025-06-17,Qualified,0,,,Email,Campaign B,Technology,Malaysia,Agent Dana,4,43.26,83,19.68,0.0
+LEAD-1272,2025-06-07,2025-06-13,2025-06-15,Qualified,0,,,Website,Campaign B,Finance,Philippines,Agent Anna,1,9.03,75,25.12,0.0
+LEAD-1273,2025-03-11,2025-03-18,2025-03-23,Lost,0,,No Budget,Facebook Ads,Campaign D,Education,Malaysia,Agent Dana,2,5.83,62,10.79,0.0
+LEAD-1274,2025-01-18,2025-01-20,2025-01-20,Converted,1,2025-01-21,,Events,Campaign D,Technology,Philippines,Agent Chris,1,6.57,69,13.28,837.12
+LEAD-1275,2025-05-10,2025-05-10,2025-05-11,Converted,1,2025-05-13,,Events,Campaign C,Technology,Singapore,Agent Anna,6,45.83,17,12.58,894.85
+LEAD-1276,2025-04-15,2025-04-21,2025-04-22,Converted,1,2025-04-24,,Referral,Campaign C,Healthcare,Philippines,Agent Anna,5,2.82,27,21.72,527.0
+LEAD-1277,2025-03-08,2025-03-15,2025-03-16,Lost,0,,No Budget,Referral,Campaign B,Finance,Singapore,Agent Ben,2,36.23,55,41.78,0.0
+LEAD-1278,2025-01-24,2025-02-01,2025-02-09,Qualified,0,,,Events,Campaign C,Technology,Philippines,Agent Ben,2,24.03,58,12.34,0.0
+LEAD-1279,2025-02-08,2025-02-11,2025-02-27,Lost,0,,Timeline Issue,Website,Campaign D,Healthcare,Malaysia,Agent Chris,6,24.69,82,12.38,0.0
+LEAD-1280,2025-03-16,2025-03-21,2025-03-27,Converted,1,2025-03-31,,Website,Campaign B,Technology,Malaysia,Agent Ben,1,47.92,31,41.27,1631.83
+LEAD-1281,2025-02-19,2025-02-24,2025-03-07,Converted,1,2025-03-09,,Email,Campaign A,Technology,Singapore,Agent Chris,4,26.35,76,34.0,1997.7
+LEAD-1282,2025-04-08,2025-04-13,2025-04-25,Converted,1,2025-04-29,,Website,Campaign C,Healthcare,Singapore,Agent Ben,6,24.92,72,44.39,1725.9
+LEAD-1283,2025-01-03,2025-01-12,2025-01-12,Lost,0,,Competitor,Referral,Campaign B,Finance,Philippines,Agent Chris,6,37.05,80,36.64,0.0
+LEAD-1284,2025-03-01,2025-03-10,2025-03-20,Lost,0,,Competitor,Referral,Campaign B,Finance,Indonesia,Agent Ben,5,2.48,71,36.28,0.0
+LEAD-1285,2025-03-07,2025-03-16,2025-03-19,Lost,0,,No Budget,Facebook Ads,Campaign A,Retail,Philippines,Agent Anna,0,6.34,12,38.28,0.0
+LEAD-1286,2025-04-08,2025-04-14,2025-04-29,Converted,1,2025-05-03,,Website,Campaign C,Healthcare,Philippines,Agent Anna,3,8.45,79,40.69,1893.4
+LEAD-1287,2025-02-09,2025-02-10,2025-02-17,Engaged,0,,,Events,Campaign C,Technology,Singapore,Agent Ben,1,26.0,53,29.11,0.0
+LEAD-1288,2025-02-25,2025-03-02,2025-03-20,Engaged,0,,,Website,Campaign C,Retail,Singapore,Agent Chris,3,17.99,58,15.65,0.0
+LEAD-1289,2025-06-15,2025-06-25,2025-06-26,Qualified,0,,,Referral,Campaign B,Education,Indonesia,Agent Chris,6,33.08,93,47.57,0.0
+LEAD-1290,2025-06-26,2025-07-03,2025-07-22,Qualified,0,,,Email,Campaign C,Healthcare,Malaysia,Agent Anna,4,18.28,30,16.45,0.0
+LEAD-1291,2025-01-23,2025-01-30,2025-02-16,Converted,1,2025-02-21,,Email,Campaign C,Retail,Malaysia,Agent Ben,6,46.21,86,31.38,1847.15
+LEAD-1292,2025-05-08,2025-05-16,2025-05-20,Lost,0,,Timeline Issue,Facebook Ads,Campaign D,Finance,Singapore,Agent Ben,4,11.27,53,8.79,0.0
+LEAD-1293,2025-06-27,2025-06-30,2025-07-04,Converted,1,2025-07-08,,LinkedIn,Campaign D,Healthcare,Philippines,Agent Ben,3,21.48,87,16.73,1805.77
+LEAD-1294,2025-02-23,2025-03-01,2025-03-08,Converted,1,2025-03-13,,Events,Campaign B,Technology,Malaysia,Agent Ben,2,37.93,90,20.85,322.01
+LEAD-1295,2025-06-17,2025-06-24,2025-06-26,Qualified,0,,,Events,Campaign A,Retail,Singapore,Agent Anna,6,10.08,93,43.39,0.0
+LEAD-1296,2025-05-10,2025-05-18,2025-06-04,Qualified,0,,,Facebook Ads,Campaign C,Technology,Malaysia,Agent Anna,3,7.98,42,48.39,0.0
+LEAD-1297,2025-03-09,2025-03-13,2025-03-22,Converted,1,2025-03-26,,Email,Campaign B,Finance,Malaysia,Agent Ben,0,25.83,15,28.79,1600.46
+LEAD-1298,2025-05-09,2025-05-18,2025-05-24,Lost,0,,Timeline Issue,Referral,Campaign A,Finance,Malaysia,Agent Ben,3,19.87,40,7.12,0.0
+LEAD-1299,2025-04-06,2025-04-13,2025-04-20,Qualified,0,,,Events,Campaign A,Finance,Singapore,Agent Dana,2,4.67,66,24.66,0.0
