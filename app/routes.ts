@@ -11,17 +11,17 @@ export default [
         // "/" → Home
         index("routes/home.tsx"),
 
+        // "/archive"
+        route("archive", "routes/archive.tsx"),
+
         // // "/generate"
         // route("generate", "routes/generate.tsx"),
 
-        // // "/archive"
-        // route("archive", "routes/archive.tsx"),
-
-        // // "/preview/executive-summary"
-        // route(
-        //     "preview/executive-summary",
-        //     "routes/preview.executive-summary.tsx"
-        // ),
+        // "/preview/executive-summary"
+        route(
+            "preview/executive-summary",
+            "routes/preview.executive-summary.tsx"
+        ),
 
         // // "/preview/kpi-overview"
         // route("preview/kpi-overview", "routes/preview.kpi-overview.tsx"),

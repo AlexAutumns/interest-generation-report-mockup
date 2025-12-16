@@ -27,7 +27,7 @@ export function Navbar({
             {/* Left: Company Logo + App Title */}
             <div className="flex items-center gap-4">
                 {/* Big logo slot */}
-                <div className="flex h-10 px-5 items-center justify-center rounded-md bg-white/10 md:h-12 md:px-6">
+                <div className="flex h-10 px-5 items-center justify-center rounded-md md:h-12 md:px-6">
                     {/* Replace this div with your <img src="/your-logo.png" /> */}
                     <img
                         src={ClaaS2SaaSLogo}
