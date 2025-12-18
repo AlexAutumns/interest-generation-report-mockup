@@ -10,7 +10,7 @@ type NavbarProps = {
 
 export function Navbar({
     userName = "Akia Hans",
-    userRole = "Digital Sales Manager",
+    userRole = "Digital Sales Team Member",
 }: NavbarProps) {
     const initials = userName
         .split(" ")

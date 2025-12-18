@@ -20,7 +20,7 @@ export default [
         // "/preview/executive-summary"
         route(
             "preview/executive-summary",
-            "routes/preview.executive-summary.tsx"
+            "routes/preview.executive_summary.tsx"
         ),
 
         // // "/preview/kpi-overview"
