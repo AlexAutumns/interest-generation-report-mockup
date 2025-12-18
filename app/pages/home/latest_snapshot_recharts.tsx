@@ -34,7 +34,7 @@ export default function LatestSnapshotRecharts() {
     }, [latest]);
 
     return (
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="h-full rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
             <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-[#193E6B]" />

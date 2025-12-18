@@ -1,3 +1,4 @@
+// app/pages/home/generate_report_cta.tsx
 import { Link } from "react-router";
 import {
     FilePlus2,
@@ -9,19 +10,43 @@ import {
     CalendarClock,
     CalendarDays,
     CalendarRange,
+    Sparkles,
+    ClipboardCheck,
+    PencilLine,
 } from "lucide-react";
+import { motion } from "framer-motion";
+import { toast } from "sonner";
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+function cn(...inputs: Array<string | undefined | null | false>) {
+    return twMerge(clsx(inputs));
+}
+
+const TYPE_CHIPS = ["Weekly", "Monthly", "Quarterly"] as const;
 
 export default function GenerateReportCta() {
+    function handleMockAction(message: string) {
+        toast(message, {
+            description: "Mockup interaction — backend wiring comes later.",
+        });
+    }
+
     return (
-        <div className="lg:col-span-2 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div className="h-full w-full rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="flex h-full flex-col gap-5 lg:flex-row lg:items-stretch lg:justify-between">
                 {/* Left: CTA */}
-                <div className="flex-1">
+                <div className="flex min-w-0 flex-1 flex-col">
                     <div className="flex items-center gap-2">
                         <FilePlus2 className="h-4 w-4 text-[#193E6B]" />
                         <h2 className="text-base font-semibold text-[#193E6B]">
                             Generate a new report
                         </h2>
+
+                        <span className="ml-2 inline-flex items-center gap-2 rounded-full bg-[#B3A125]/10 px-3 py-1 text-xs font-semibold text-[#193E6B] ring-1 ring-[#B3A125]/25">
+                            <Sparkles className="h-3.5 w-3.5" />
+                            Preview-first
+                        </span>
                     </div>
 
                     <p className="mt-1 text-sm text-gray-600">
@@ -33,33 +58,68 @@ export default function GenerateReportCta() {
                         <Link
                             to="/generate"
                             className="inline-flex items-center justify-center gap-2 rounded-md bg-[#193E6B] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#16365f] focus:outline-none focus:ring-2 focus:ring-[#B3A125]/70"
+                            onClick={() =>
+                                toast.success("Opening Generate Report…", {
+                                    description:
+                                        "You can refine period + options on the next page.",
+                                })
+                            }
                         >
                             <FilePlus2 className="h-4 w-4" />
                             Generate Report
                         </Link>
 
-                        <div className="hidden items-center gap-2 text-xs text-gray-500 sm:flex">
-                            <span className="inline-block h-2 w-2 rounded-full bg-[#B3A125]" />
-                            Preview-first workflow
-                        </div>
+                        <button
+                            type="button"
+                            onClick={() =>
+                                handleMockAction("Quick Generate (coming soon)")
+                            }
+                            className={cn(
+                                "inline-flex items-center justify-center gap-2 rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-semibold",
+                                "text-[#193E6B] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#B3A125]/50"
+                            )}
+                            title="Planned: one-click generation using defaults"
+                        >
+                            <ClipboardCheck className="h-4 w-4 text-[#B3A125]" />
+                            Quick Generate
+                        </button>
                     </div>
 
                     {/* Type chips (UI-only for now) */}
                     <div className="mt-5 flex flex-wrap gap-2">
-                        {["Weekly", "Monthly", "Quarterly"].map((label) => (
-                            <Link
+                        {TYPE_CHIPS.map((label) => (
+                            <motion.div
                                 key={label}
-                                to="/generate"
-                                className="rounded-full border border-[#B3A125]/35 bg-[#B3A125]/10 px-3 py-1 text-xs font-semibold text-[#193E6B] hover:bg-[#B3A125]/15"
+                                whileHover={{ y: -1 }}
+                                whileTap={{ scale: 0.99 }}
                             >
-                                {label}
-                            </Link>
+                                <Link
+                                    to="/generate"
+                                    onClick={() =>
+                                        toast(`Type selected: ${label}`, {
+                                            description:
+                                                "Mock selection — will prefill the generator later.",
+                                        })
+                                    }
+                                    className={cn(
+                                        "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold",
+                                        "border-[#B3A125]/35 bg-[#B3A125]/10 text-[#193E6B] hover:bg-[#B3A125]/15",
+                                        "focus:outline-none focus:ring-2 focus:ring-[#B3A125]/50"
+                                    )}
+                                >
+                                    {label}
+                                </Link>
+                            </motion.div>
                         ))}
                     </div>
+
+                    {/* Spacer so left side balances height nicely */}
+                    <div className="flex-1" />
                 </div>
 
                 {/* Right: Checklist + Schedule */}
-                <div className="w-full lg:w-[360px]">
+                <div className="w-full shrink-0 lg:w-[380px]">
+                    {/* What you'll get */}
                     <div className="rounded-xl border border-[#B3A125]/25 bg-[#B3A125]/10 p-4">
                         <div className="flex items-center justify-between">
                             <div className="text-sm font-semibold text-[#193E6B]">
@@ -102,22 +162,54 @@ export default function GenerateReportCta() {
                                 </span>
                             </li>
                         </ul>
+
+                        <button
+                            type="button"
+                            onClick={() => handleMockAction("Checklist opened")}
+                            className={cn(
+                                "mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md border border-[#B3A125]/35",
+                                "bg-white px-3 py-2 text-sm font-semibold text-[#193E6B] hover:bg-[#F5F5F5]",
+                                "focus:outline-none focus:ring-2 focus:ring-[#B3A125]/60"
+                            )}
+                        >
+                            <ClipboardCheck className="h-4 w-4 text-[#B3A125]" />
+                            View checklist
+                        </button>
                     </div>
 
+                    {/* Schedule */}
                     <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between gap-2">
                             <div className="text-sm font-semibold text-[#193E6B]">
                                 Report schedule
                             </div>
-                            <span className="text-xs font-semibold text-gray-500">
-                                (mock)
-                            </span>
+
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs font-semibold text-gray-500">
+                                    (mock)
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        handleMockAction(
+                                            "Schedule editor opened"
+                                        )
+                                    }
+                                    className={cn(
+                                        "inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-2 py-1",
+                                        "text-xs font-semibold text-[#193E6B] hover:bg-gray-50"
+                                    )}
+                                >
+                                    <PencilLine className="h-3.5 w-3.5 text-[#B3A125]" />
+                                    Edit
+                                </button>
+                            </div>
                         </div>
 
                         <div className="mt-3 space-y-2 text-sm text-gray-700">
                             <div className="flex items-start gap-2">
                                 <CalendarClock className="mt-0.5 h-4 w-4 text-[#193E6B]" />
-                                <div>
+                                <div className="min-w-0">
                                     <div className="font-semibold text-[#193E6B]">
                                         Weekly
                                     </div>
@@ -129,7 +221,7 @@ export default function GenerateReportCta() {
 
                             <div className="flex items-start gap-2">
                                 <CalendarDays className="mt-0.5 h-4 w-4 text-[#193E6B]" />
-                                <div>
+                                <div className="min-w-0">
                                     <div className="font-semibold text-[#193E6B]">
                                         Monthly
                                     </div>
@@ -141,7 +233,7 @@ export default function GenerateReportCta() {
 
                             <div className="flex items-start gap-2">
                                 <CalendarRange className="mt-0.5 h-4 w-4 text-[#193E6B]" />
-                                <div>
+                                <div className="min-w-0">
                                     <div className="font-semibold text-[#193E6B]">
                                         Quarterly
                                     </div>
@@ -155,6 +247,21 @@ export default function GenerateReportCta() {
                         <div className="mt-3 rounded-lg bg-[#F5F5F5] p-3 text-xs text-gray-600 ring-1 ring-gray-200">
                             You can still generate reports on-demand anytime.
                         </div>
+
+                        <button
+                            type="button"
+                            onClick={() =>
+                                handleMockAction("Export options (coming soon)")
+                            }
+                            className={cn(
+                                "mt-3 inline-flex w-full items-center justify-center gap-2 rounded-md",
+                                "bg-[#193E6B]/5 px-3 py-2 text-sm font-semibold text-[#193E6B] ring-1 ring-[#193E6B]/10",
+                                "hover:bg-[#193E6B]/10 focus:outline-none focus:ring-2 focus:ring-[#B3A125]/50"
+                            )}
+                        >
+                            <FileDown className="h-4 w-4 text-[#B3A125]" />
+                            Export options
+                        </button>
                     </div>
                 </div>
             </div>

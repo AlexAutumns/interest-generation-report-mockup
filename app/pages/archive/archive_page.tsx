@@ -1,6 +1,12 @@
 // app/pages/archive/archive_page.tsx
 import { useMemo, useState } from "react";
-import { Archive as ArchiveIcon } from "lucide-react";
+import { Link } from "react-router";
+import {
+    Archive as ArchiveIcon,
+    Copy,
+    Download,
+    ArrowRight,
+} from "lucide-react";
 import { reportSummaries } from "../../data/mockReportSummaries";
 
 import ArchiveFiltersBar from "./archive_filters_bar";
@@ -10,6 +16,10 @@ import ArchiveReportsTable from "./archive_reports_table";
 
 import type { SortKey } from "./archive_helpers";
 import { safeLower } from "./archive_helpers";
+
+import { motion } from "framer-motion";
+import { toast } from "sonner";
+import { cn } from "../../utils/cn";
 
 type ViewReport = {
     id: string;
@@ -26,17 +36,11 @@ function normalizeType(raw: unknown): ViewReport["type"] {
         .trim()
         .toLowerCase();
 
-    // Handles: WEEKLY / weekly / Week / wk / etc.
     if (s.includes("week") || s === "w" || s === "wk" || s === "weekly")
         return "Weekly";
     if (s.includes("month") || s === "m" || s === "monthly") return "Monthly";
     if (s.includes("quart") || s === "q" || s === "quarterly")
         return "Quarterly";
-
-    // If already "Weekly"/"Monthly"/"Quarterly", keep it
-    if (s === "weekly") return "Weekly";
-    if (s === "monthly") return "Monthly";
-    if (s === "quarterly") return "Quarterly";
 
     return String(raw ?? "");
 }
@@ -55,12 +59,16 @@ function normalizeStatus(raw: unknown): ViewReport["status"] {
         return "In Progress";
     if (s.includes("fail") || s.includes("error")) return "Failed";
 
-    // If already in correct form
-    if (s === "completed") return "Completed";
-    if (s === "in progress") return "In Progress";
-    if (s === "failed") return "Failed";
-
     return String(raw ?? "");
+}
+
+function buildExecutiveSummaryPath(reportId: string) {
+    return `/preview/executive-summary?reportId=${encodeURIComponent(reportId)}`;
+}
+
+function buildAbsoluteUrl(path: string) {
+    if (typeof window === "undefined") return path;
+    return `${window.location.origin}${path}`;
 }
 
 export default function ArchivePage() {
@@ -102,12 +110,10 @@ export default function ArchivePage() {
         }
 
         // 3) Filters
-        if (typeFilter !== "All") {
+        if (typeFilter !== "All")
             rows = rows.filter((r) => r.type === typeFilter);
-        }
-        if (statusFilter !== "All") {
+        if (statusFilter !== "All")
             rows = rows.filter((r) => r.status === statusFilter);
-        }
 
         // 4) Sort
         rows.sort((a, b) => {
@@ -139,6 +145,8 @@ export default function ArchivePage() {
         return rows;
     }, [searchQuery, typeFilter, statusFilter, sortKey]);
 
+    const latestReport = filteredSorted[0];
+
     // Options derived from *normalized* rows (always matches the UI labels)
     const typeOptions = useMemo(() => {
         const set = new Set(filteredSorted.map((r) => r.type));
@@ -155,47 +163,158 @@ export default function ArchivePage() {
         setTypeFilter("All");
         setStatusFilter("All");
         setSortKey("generated_desc");
+        toast.success("Filters cleared", {
+            description: "Showing the full archive list.",
+        });
+    }
+
+    function handleCopyArchiveLink() {
+        const url = buildAbsoluteUrl("/archive");
+        if (navigator?.clipboard?.writeText) {
+            navigator.clipboard
+                .writeText(url)
+                .then(() => toast.success("Archive link copied"))
+                .catch(() =>
+                    toast.info("Copy failed", {
+                        description:
+                            "Please copy the link manually from the address bar.",
+                    })
+                );
+        } else {
+            toast.info("Copy not supported", {
+                description:
+                    "Please copy the link manually from the address bar.",
+            });
+        }
+    }
+
+    function handleDownloadMock() {
+        toast.info("Download is coming soon (mockup)", {
+            description:
+                "Export will be enabled after generation logic is finalized.",
+        });
     }
 
     return (
         <div className="flex flex-col gap-6">
             {/* Header */}
-            <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                    <ArchiveIcon className="h-5 w-5 text-[#193E6B]" />
-                    <h1 className="text-xl font-semibold text-[#193E6B]">
-                        Report Archive
-                    </h1>
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22 }}
+                className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
+            >
+                <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                        <ArchiveIcon className="h-5 w-5 text-[#193E6B]" />
+                        <h1 className="text-xl font-semibold text-[#193E6B]">
+                            Report Archive
+                        </h1>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                        Browse, filter, and compare historical Interest
+                        Generation reports.
+                    </p>
                 </div>
-                <p className="text-sm text-gray-600">
-                    Browse, filter, and compare historical Interest Generation
-                    reports.
-                </p>
-            </div>
 
-            <ArchiveFiltersBar
-                searchQuery={searchQuery}
-                onSearchQueryChange={setSearchQuery}
-                typeOptions={typeOptions}
-                typeFilter={typeFilter}
-                onTypeFilterChange={setTypeFilter}
-                statusOptions={statusOptions}
-                statusFilter={statusFilter}
-                onStatusFilterChange={setStatusFilter}
-                sortKey={sortKey}
-                onSortKeyChange={setSortKey}
-                onClear={handleClear}
-            />
+                {/* Header actions */}
+                <div className="flex flex-wrap items-center gap-2">
+                    {latestReport ? (
+                        <Link
+                            to={buildExecutiveSummaryPath(latestReport.id)}
+                            className={cn(
+                                "inline-flex items-center gap-2 rounded-md border border-[#B3A125]/35 bg-[#B3A125]/10 px-3 py-2 text-sm font-semibold",
+                                "text-[#193E6B] hover:bg-[#B3A125]/15"
+                            )}
+                            onClick={() =>
+                                toast("Opening latest report…", {
+                                    description: latestReport.name,
+                                })
+                            }
+                            title="Open the most recent report"
+                        >
+                            <ArrowRight className="h-4 w-4" />
+                            Open latest
+                        </Link>
+                    ) : null}
 
-            {/* These modules will work fine with normalized strings */}
-            <ArchiveInsights reports={filteredSorted as any} />
+                    <button
+                        type="button"
+                        onClick={handleCopyArchiveLink}
+                        className={cn(
+                            "inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-semibold",
+                            "text-[#193E6B] hover:bg-gray-50"
+                        )}
+                        title="Copy archive link"
+                    >
+                        <Copy className="h-4 w-4 text-[#193E6B]/70" />
+                        Copy link
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={handleDownloadMock}
+                        className={cn(
+                            "inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-semibold",
+                            "text-[#193E6B] hover:bg-gray-50"
+                        )}
+                        title="Download (mock)"
+                    >
+                        <Download className="h-4 w-4 text-[#193E6B]/70" />
+                        PDF
+                    </button>
+                </div>
+            </motion.div>
+
+            {/* Filters */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22, delay: 0.04 }}
+            >
+                <ArchiveFiltersBar
+                    searchQuery={searchQuery}
+                    onSearchQueryChange={setSearchQuery}
+                    typeOptions={typeOptions}
+                    typeFilter={typeFilter}
+                    onTypeFilterChange={setTypeFilter}
+                    statusOptions={statusOptions}
+                    statusFilter={statusFilter}
+                    onStatusFilterChange={setStatusFilter}
+                    sortKey={sortKey}
+                    onSortKeyChange={setSortKey}
+                    onClear={handleClear}
+                />
+            </motion.div>
+
+            {/* Insights */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22, delay: 0.06 }}
+                whileHover={{ y: -2 }}
+            >
+                <ArchiveInsights reports={filteredSorted as any} />
+            </motion.div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <div className="lg:col-span-1">
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.22, delay: 0.08 }}
+                    whileHover={{ y: -2 }}
+                    className="lg:col-span-2"
+                >
                     <ArchiveTrendRecharts reports={filteredSorted as any} />
-                </div>
+                </motion.div>
 
-                <div className="lg:col-span-2">
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.22, delay: 0.1 }}
+                    whileHover={{ y: -2 }}
+                    className="lg:col-span-1"
+                >
                     <div className="rounded-xl border border-[#B3A125]/25 bg-[#B3A125]/10 p-4">
                         <div className="text-sm font-semibold text-[#193E6B]">
                             Tip for reviewers
@@ -206,10 +325,18 @@ export default function ArchivePage() {
                             patterns.
                         </p>
                     </div>
-                </div>
+                </motion.div>
             </div>
 
-            <ArchiveReportsTable reports={filteredSorted as any} />
+            {/* Table */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22, delay: 0.12 }}
+                whileHover={{ y: -2 }}
+            >
+                <ArchiveReportsTable reports={filteredSorted as any} />
+            </motion.div>
         </div>
     );
 }

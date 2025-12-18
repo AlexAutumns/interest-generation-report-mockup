@@ -1,17 +1,23 @@
 import { Link, useSearchParams } from "react-router";
 import { generatedReports } from "../../../data/mockReportsFull";
-import { FileText, ArrowLeft } from "lucide-react";
+import {
+    FileText,
+    ArrowLeft,
+    Copy,
+    Download,
+    ExternalLink,
+} from "lucide-react";
+
+import { motion } from "framer-motion";
+import { toast } from "sonner";
+import { cn } from "../../../utils/cn";
 
 import ReportInfo from "./report_info";
 import KpiTiles from "./kpi_tiles";
 import VisualHighlightsRecharts from "./visual_highlights_recharts";
 import NextSteps from "./next_steps";
 import ChannelPerformanceTable from "./channel_performance_table";
-import {
-    formatDateRange,
-    formatDateTime,
-    shortChannelLabel,
-} from "./executive_summary_helpers";
+import { shortChannelLabel } from "./executive_summary_helpers";
 
 type ChannelTopRow = {
     channel: string;
@@ -21,6 +27,15 @@ type ChannelTopRow = {
 };
 
 type PieRow = { name: string; value: number };
+
+function buildExecutiveSummaryPath(reportId: string) {
+    return `/preview/executive-summary?reportId=${encodeURIComponent(reportId)}`;
+}
+
+function buildAbsoluteUrl(path: string) {
+    if (typeof window === "undefined") return path;
+    return `${window.location.origin}${path}`;
+}
 
 export default function ExecutiveSummaryPage() {
     const [params] = useSearchParams();
@@ -73,10 +88,53 @@ export default function ExecutiveSummaryPage() {
         },
     ];
 
+    const reportPath = buildExecutiveSummaryPath(report.id);
+
+    function handleCopyLink() {
+        const url = buildAbsoluteUrl(reportPath);
+
+        if (navigator?.clipboard?.writeText) {
+            navigator.clipboard
+                .writeText(url)
+                .then(() => toast.success("Report link copied"))
+                .catch(() =>
+                    toast.info("Copy failed", {
+                        description:
+                            "Please copy the link manually from the address bar.",
+                    })
+                );
+        } else {
+            toast.info("Copy not supported", {
+                description:
+                    "Please copy the link manually from the address bar.",
+            });
+        }
+    }
+
+    function handleDownloadMock() {
+        toast.info("Download is coming soon (mockup)", {
+            description:
+                "Export will be enabled after generation logic is finalized.",
+        });
+    }
+
+    function handleOpenNewTab(reportName: string) {
+        const url = buildAbsoluteUrl(reportPath);
+        if (typeof window !== "undefined") {
+            window.open(url, "_blank", "noopener,noreferrer");
+        }
+        toast("Opened in a new tab", { description: reportName });
+    }
+
     return (
         <div className="flex flex-col gap-6">
             {/* Header */}
-            <div className="flex items-start justify-between gap-4">
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22 }}
+                className="flex items-start justify-between gap-4"
+            >
                 <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
                         <FileText className="h-5 w-5 text-[#193E6B]" />
@@ -90,38 +148,107 @@ export default function ExecutiveSummaryPage() {
                     </p>
                 </div>
 
-                <Link
-                    to="/archive"
-                    className="inline-flex items-center gap-2 rounded-md border border-[#B3A125]/35 bg-[#B3A125]/10 px-3 py-2 text-sm font-semibold text-[#193E6B] hover:bg-[#B3A125]/15"
-                >
-                    <ArrowLeft className="h-4 w-4" />
-                    Back to Archive
-                </Link>
-            </div>
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={handleCopyLink}
+                        className={cn(
+                            "inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-semibold",
+                            "text-[#193E6B] hover:bg-gray-50"
+                        )}
+                        title="Copy report link"
+                    >
+                        <Copy className="h-4 w-4 text-[#193E6B]/70" />
+                        Copy link
+                    </button>
 
-            <ReportInfo
-                name={report.name}
-                periodLabel={report.periodLabel}
-                periodStart={report.periodStart}
-                periodEnd={report.periodEnd}
-                status={report.status}
-                generatedOn={report.generatedOn}
-                generatedBy={report.generatedBy}
-            />
+                    <button
+                        type="button"
+                        onClick={handleDownloadMock}
+                        className={cn(
+                            "inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-semibold",
+                            "text-[#193E6B] hover:bg-gray-50"
+                        )}
+                        title="Download (mock)"
+                    >
+                        <Download className="h-4 w-4 text-[#193E6B]/70" />
+                        PDF
+                    </button>
 
-            <KpiTiles executiveSummary={s} />
+                    <button
+                        type="button"
+                        onClick={() => handleOpenNewTab(report.name)}
+                        className={cn(
+                            "hidden items-center gap-2 rounded-md border border-[#B3A125]/35 bg-[#B3A125]/10 px-3 py-2 text-sm font-semibold",
+                            "text-[#193E6B] hover:bg-[#B3A125]/15 sm:inline-flex"
+                        )}
+                        title="Open in a new tab"
+                    >
+                        <ExternalLink className="h-4 w-4" />
+                        New tab
+                    </button>
 
-            <VisualHighlightsRecharts
-                channelTop={channelTop}
-                conversionPie={conversionPie}
-                totalLeads={s.totalLeads}
-                convertedLeads={s.convertedLeads}
-                conversionRate={s.conversionRate}
-            />
+                    <Link
+                        to="/archive"
+                        className="inline-flex items-center gap-2 rounded-md border border-[#B3A125]/35 bg-[#B3A125]/10 px-3 py-2 text-sm font-semibold text-[#193E6B] hover:bg-[#B3A125]/15"
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                        Back to Archive
+                    </Link>
+                </div>
+            </motion.div>
+
+            {/* Report info */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22, delay: 0.05 }}
+                whileHover={{ y: -2 }}
+            >
+                <ReportInfo
+                    name={report.name}
+                    periodLabel={report.periodLabel}
+                    periodStart={report.periodStart}
+                    periodEnd={report.periodEnd}
+                    status={report.status}
+                    generatedOn={report.generatedOn}
+                    generatedBy={report.generatedBy}
+                />
+            </motion.div>
+
+            {/* KPI tiles */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22, delay: 0.08 }}
+            >
+                <KpiTiles executiveSummary={s} />
+            </motion.div>
+
+            {/* Charts */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22, delay: 0.1 }}
+            >
+                <VisualHighlightsRecharts
+                    channelTop={channelTop}
+                    conversionPie={conversionPie}
+                    totalLeads={s.totalLeads}
+                    convertedLeads={s.convertedLeads}
+                    conversionRate={s.conversionRate}
+                />
+            </motion.div>
 
             {/* Narrative + Next steps */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <div className="lg:col-span-2 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.22, delay: 0.12 }}
+                    whileHover={{ y: -2 }}
+                    className="lg:col-span-2 rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+                >
                     <div className="text-sm font-semibold text-[#193E6B]">
                         Summary
                     </div>
@@ -166,19 +293,26 @@ export default function ExecutiveSummaryPage() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
-                <NextSteps reportId={report.id} />
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.22, delay: 0.14 }}
+                    whileHover={{ y: -2 }}
+                >
+                    <NextSteps reportId={report.id} />
+                </motion.div>
             </div>
 
-            <ChannelPerformanceTable channels={report.channels} />
-
-            {/* Helper usage so TS doesn't tree-shake unused in this file */}
-            {/* (kept because ReportInfo formats internally using helpers file) */}
-            <span className="hidden">
-                {formatDateRange(report.periodStart, report.periodEnd)}
-                {formatDateTime(report.generatedOn)}
-            </span>
+            {/* Channel breakdown */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22, delay: 0.16 }}
+            >
+                <ChannelPerformanceTable channels={report.channels} />
+            </motion.div>
         </div>
     );
 }

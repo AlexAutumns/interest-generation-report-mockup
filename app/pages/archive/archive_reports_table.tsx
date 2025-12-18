@@ -9,7 +9,12 @@ import {
     Eye,
     Download,
     Copy,
+    Link2,
 } from "lucide-react";
+import { motion } from "framer-motion";
+import { toast } from "sonner";
+
+import { cn } from "../../utils/cn";
 import {
     badgeClass,
     formatGeneratedOn,
@@ -48,11 +53,59 @@ function StatusIcon({ status }: { status: string }) {
     return <CheckCircle2 className="h-4 w-4" />;
 }
 
+function buildExecutiveSummaryPath(reportId: string) {
+    return `/preview/executive-summary?reportId=${encodeURIComponent(reportId)}`;
+}
+
+function buildAbsoluteUrl(path: string) {
+    if (typeof window === "undefined") return path;
+    return `${window.location.origin}${path}`;
+}
+
 export default function ArchiveReportsTable(props: Props) {
     const { reports } = props;
 
+    function handleCopyLink(reportId: string) {
+        const path = buildExecutiveSummaryPath(reportId);
+        const url = buildAbsoluteUrl(path);
+
+        if (navigator?.clipboard?.writeText) {
+            navigator.clipboard
+                .writeText(url)
+                .then(() => toast.success("Report link copied"))
+                .catch(() =>
+                    toast.info("Copy failed", {
+                        description:
+                            "Please copy the link manually from the address bar.",
+                    })
+                );
+        } else {
+            toast.info("Copy not supported", {
+                description:
+                    "Please copy the link manually from the address bar.",
+            });
+        }
+    }
+
+    function handleDownloadMock(reportName: string) {
+        toast.info("Download is coming soon (mockup)", {
+            description: `Export will be enabled later. (${reportName})`,
+        });
+    }
+
+    function handleDuplicateMock(reportName: string) {
+        toast("Template loaded", {
+            description: `${reportName} (mock duplicate flow)`,
+        });
+    }
+
     return (
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+        <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22 }}
+            className="rounded-xl border border-gray-200 bg-white shadow-sm"
+        >
             <div className="flex items-center justify-between px-5 py-4">
                 <div>
                     <div className="text-base font-semibold text-[#193E6B]">
@@ -63,6 +116,7 @@ export default function ArchiveReportsTable(props: Props) {
                         comparison and reference.
                     </p>
                 </div>
+
                 <div className="text-xs text-gray-500">
                     Showing{" "}
                     <span className="font-semibold text-[#193E6B]">
@@ -86,9 +140,16 @@ export default function ArchiveReportsTable(props: Props) {
                     </thead>
 
                     <tbody>
-                        {reports.map((r) => (
-                            <tr
+                        {reports.map((r, idx) => (
+                            <motion.tr
                                 key={r.id}
+                                initial={{ opacity: 0, y: 6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{
+                                    duration: 0.18,
+                                    delay: Math.min(idx * 0.015, 0.2),
+                                }}
+                                whileHover={{ y: -1 }}
                                 className="border-t border-gray-100 hover:bg-[#193E6B]/[0.03]"
                             >
                                 <td className="px-5 py-3">
@@ -123,9 +184,10 @@ export default function ArchiveReportsTable(props: Props) {
 
                                 <td className="px-5 py-3">
                                     <span
-                                        className={`inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs font-semibold ${badgeClass(
-                                            r.status
-                                        )}`}
+                                        className={cn(
+                                            "inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs font-semibold",
+                                            badgeClass(r.status)
+                                        )}
                                     >
                                         <StatusIcon status={r.status} />
                                         {r.status}
@@ -135,9 +197,17 @@ export default function ArchiveReportsTable(props: Props) {
                                 <td className="px-5 py-3">
                                     <div className="flex flex-wrap items-center gap-2">
                                         <Link
-                                            to={`/preview/executive-summary?reportId=${encodeURIComponent(r.id)}`}
-                                            className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-[#193E6B] hover:bg-gray-50"
+                                            to={buildExecutiveSummaryPath(r.id)}
+                                            className={cn(
+                                                "inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-xs font-semibold",
+                                                "text-[#193E6B] hover:bg-gray-50"
+                                            )}
                                             title="Open Executive Summary"
+                                            onClick={() =>
+                                                toast("Opening report…", {
+                                                    description: r.name,
+                                                })
+                                            }
                                         >
                                             <Eye className="h-4 w-4" />
                                             Preview
@@ -145,25 +215,49 @@ export default function ArchiveReportsTable(props: Props) {
 
                                         <button
                                             type="button"
-                                            disabled
-                                            className="inline-flex cursor-not-allowed items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-400"
+                                            onClick={() => handleCopyLink(r.id)}
+                                            className={cn(
+                                                "inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-xs font-semibold",
+                                                "text-[#193E6B] hover:bg-gray-50"
+                                            )}
+                                            title="Copy report link"
+                                        >
+                                            <Link2 className="h-4 w-4 text-[#193E6B]/70" />
+                                            Copy link
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleDownloadMock(r.name)
+                                            }
+                                            className={cn(
+                                                "inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-xs font-semibold",
+                                                "text-[#193E6B] hover:bg-gray-50"
+                                            )}
                                             title="Download is coming soon (mockup)"
                                         >
-                                            <Download className="h-4 w-4" />
-                                            Download
+                                            <Download className="h-4 w-4 text-[#193E6B]/70" />
+                                            PDF
                                         </button>
 
                                         <Link
                                             to={`/generate?templateReportId=${encodeURIComponent(r.id)}`}
-                                            className="inline-flex items-center gap-2 rounded-md border border-[#B3A125]/35 bg-[#B3A125]/10 px-3 py-2 text-xs font-semibold text-[#193E6B] hover:bg-[#B3A125]/15"
+                                            className={cn(
+                                                "inline-flex items-center gap-2 rounded-md border border-[#B3A125]/35 bg-[#B3A125]/10 px-3 py-2 text-xs font-semibold",
+                                                "text-[#193E6B] hover:bg-[#B3A125]/15"
+                                            )}
                                             title="Duplicate this report setup (mock)"
+                                            onClick={() =>
+                                                handleDuplicateMock(r.name)
+                                            }
                                         >
                                             <Copy className="h-4 w-4" />
                                             Duplicate
                                         </Link>
                                     </div>
                                 </td>
-                            </tr>
+                            </motion.tr>
                         ))}
 
                         {reports.length === 0 && (
@@ -179,6 +273,6 @@ export default function ArchiveReportsTable(props: Props) {
                     </tbody>
                 </table>
             </div>
-        </div>
+        </motion.div>
     );
 }
