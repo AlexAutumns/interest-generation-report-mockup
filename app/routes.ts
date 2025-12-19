@@ -23,8 +23,8 @@ export default [
             "routes/preview.executive_summary.tsx"
         ),
 
-        // // "/preview/kpi-overview"
-        // route("preview/kpi-overview", "routes/preview.kpi-overview.tsx"),
+        // "/preview/kpi-overview"
+        route("preview/kpi-overview", "routes/preview.kpi_overview.tsx"),
 
         // // "/preview/campaign-channel"
         // route(
