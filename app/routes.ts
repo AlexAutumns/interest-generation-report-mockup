@@ -26,16 +26,16 @@ export default [
         // "/preview/kpi-overview"
         route("preview/kpi-overview", "routes/preview.kpi_overview.tsx"),
 
-        // // "/preview/campaign-channel"
-        // route(
-        //     "preview/campaign-channel",
-        //     "routes/preview.campaign-channel.tsx"
-        // ),
+        // "/preview/campaign-channel"
+        route(
+            "preview/campaign-channel",
+            "routes/preview.campaign_channel.tsx"
+        ),
 
-        // // "/preview/conversion-funnel"
-        // route(
-        //     "preview/conversion-funnel",
-        //     "routes/preview.conversion-funnel.tsx"
-        // ),
+        // "/preview/conversion-funnel"
+        route(
+            "preview/conversion-funnel",
+            "routes/preview.conversion_funnel.tsx"
+        ),
     ]),
 ] satisfies RouteConfig;
