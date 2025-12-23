@@ -94,7 +94,13 @@ export const generatedReports: GeneratedReport[] = [
                 costUsd: 140,
             },
         ],
-        funnel: { new: 46, engaged: 38, qualified: 24, converted: 26, lost: 6 },
+        funnel: {
+            new: 140,
+            engaged: 116,
+            qualified: 73,
+            converted: 26,
+            lost: 6,
+        },
         regions: [
             {
                 region: "Philippines",
@@ -237,7 +243,13 @@ export const generatedReports: GeneratedReport[] = [
                 costUsd: 140,
             },
         ],
-        funnel: { new: 50, engaged: 40, qualified: 26, converted: 33, lost: 6 },
+        funnel: {
+            new: 155,
+            engaged: 124,
+            qualified: 81,
+            converted: 33,
+            lost: 6,
+        },
     },
 
     {
@@ -324,7 +336,13 @@ export const generatedReports: GeneratedReport[] = [
                 costUsd: 175,
             },
         ],
-        funnel: { new: 55, engaged: 45, qualified: 28, converted: 38, lost: 6 },
+        funnel: {
+            new: 172,
+            engaged: 141,
+            qualified: 88,
+            converted: 38,
+            lost: 6,
+        },
     },
 
     {
@@ -411,7 +429,13 @@ export const generatedReports: GeneratedReport[] = [
                 costUsd: 140,
             },
         ],
-        funnel: { new: 48, engaged: 39, qualified: 26, converted: 29, lost: 6 },
+        funnel: {
+            new: 148,
+            engaged: 120,
+            qualified: 80,
+            converted: 29,
+            lost: 6,
+        },
     },
 
     {
@@ -498,7 +522,13 @@ export const generatedReports: GeneratedReport[] = [
                 costUsd: 175,
             },
         ],
-        funnel: { new: 50, engaged: 42, qualified: 30, converted: 34, lost: 4 },
+        funnel: {
+            new: 160,
+            engaged: 134,
+            qualified: 96,
+            converted: 34,
+            lost: 4,
+        },
     },
 
     // ------------------------
@@ -589,12 +619,13 @@ export const generatedReports: GeneratedReport[] = [
             },
         ],
         funnel: {
-            new: 210,
-            engaged: 170,
-            qualified: 95,
+            new: 610,
+            engaged: 494,
+            qualified: 276,
             converted: 119,
             lost: 16,
         },
+
         regions: [
             {
                 region: "Philippines",
@@ -738,9 +769,9 @@ export const generatedReports: GeneratedReport[] = [
             },
         ],
         funnel: {
-            new: 220,
-            engaged: 175,
-            qualified: 92,
+            new: 645,
+            engaged: 513,
+            qualified: 270,
             converted: 142,
             lost: 16,
         },
@@ -831,9 +862,9 @@ export const generatedReports: GeneratedReport[] = [
             },
         ],
         funnel: {
-            new: 215,
-            engaged: 165,
-            qualified: 92,
+            new: 620,
+            engaged: 476,
+            qualified: 265,
             converted: 128,
             lost: 20,
         },
@@ -927,9 +958,9 @@ export const generatedReports: GeneratedReport[] = [
             },
         ],
         funnel: {
-            new: 645,
-            engaged: 510,
-            qualified: 290,
+            new: 1875,
+            engaged: 1483,
+            qualified: 843,
             converted: 390,
             lost: 40,
         },
@@ -1020,9 +1051,9 @@ export const generatedReports: GeneratedReport[] = [
             },
         ],
         funnel: {
-            new: 620,
-            engaged: 500,
-            qualified: 285,
+            new: 1800,
+            engaged: 1452,
+            qualified: 827,
             converted: 360,
             lost: 35,
         },

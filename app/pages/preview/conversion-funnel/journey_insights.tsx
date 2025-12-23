@@ -78,12 +78,6 @@ export default function JourneyInsights({ insights }: Props) {
                         </div>
                     )}
                 </div>
-
-                <div className="mt-4 rounded-lg border border-[#B3A125]/25 bg-[#B3A125]/10 p-3 text-xs text-[#193E6B]">
-                    Tip: Later, we can generate recommendations automatically
-                    and route them into the dedicated Recommendations & Action
-                    Items page.
-                </div>
             </div>
         </div>
     );

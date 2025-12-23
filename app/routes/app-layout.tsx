@@ -18,13 +18,23 @@ export function meta({}: Route.MetaArgs) {
 
 export default function AppLayout() {
     return (
-        <div className="flex min-h-screen flex-col bg-[#F5F5F5]">
-            <Navbar />
-            <div className="flex min-h-0 flex-1">
-                <Sidebar />
-                <main className="flex-1 overflow-auto bg-[#F5F5F5] p-6">
-                    <Outlet />
-                </main>
+        <div className="h-screen overflow-hidden bg-[#F5F5F5]">
+            <div className="flex h-full flex-col">
+                <div className="shrink-0">
+                    <Navbar />
+                </div>
+
+                {/* Body */}
+                <div className="flex min-h-0 flex-1">
+                    <aside className="shrink-0">
+                        <Sidebar />
+                    </aside>
+
+                    {/* Only outlet area scrolls */}
+                    <main className="min-w-0 flex-1 overflow-auto bg-[#F5F5F5] p-6">
+                        <Outlet />
+                    </main>
+                </div>
             </div>
 
             {/* Global toast notifications */}

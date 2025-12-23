@@ -22,6 +22,7 @@ function clampInt(n: number, min: number, max: number) {
 
 /**
  * Deterministic "noise" from report id (stable between reloads)
+ * Used only for mock lead-score bin distribution.
  */
 function hashToUnit(seed: string) {
     let h = 2166136261;
@@ -29,8 +30,7 @@ function hashToUnit(seed: string) {
         h ^= seed.charCodeAt(i);
         h = Math.imul(h, 16777619);
     }
-    // 0..1
-    return (h >>> 0) / 4294967295;
+    return (h >>> 0) / 4294967295; // 0..1
 }
 
 function stageLabel(key: FunnelStageKey) {
@@ -49,41 +49,50 @@ function stageLabel(key: FunnelStageKey) {
 }
 
 export function buildConversionFunnelModel(report: any): ConversionFunnelModel {
-    const totalLeads = safeNumber(report?.executiveSummary?.totalLeads);
-    const convertedLeads = safeNumber(report?.executiveSummary?.convertedLeads);
-    const conversionRate = safeNumber(report?.executiveSummary?.conversionRate);
+    // Prefer funnel counts (Option B). Fallback safely if missing.
+    const capturedLeads = safeNumber(
+        report?.funnel?.new,
+        safeNumber(report?.executiveSummary?.totalLeads)
+    );
+    const engagedLeads = safeNumber(report?.funnel?.engaged);
+    const qualifiedLeads = safeNumber(report?.funnel?.qualified);
+    const convertedLeads = safeNumber(
+        report?.funnel?.converted,
+        safeNumber(report?.executiveSummary?.convertedLeads)
+    );
+
+    const conversionRateFromSummary = safeNumber(
+        report?.executiveSummary?.conversionRate
+    );
     const avgLeadScore = safeNumber(report?.executiveSummary?.avgLeadScore);
     const avgFollowUpHours = safeNumber(
         report?.executiveSummary?.avgFollowUpTime
     );
 
-    const seed = String(report?.id ?? report?.name ?? "seed");
-    const u = hashToUnit(seed);
-
-    /**
-     * Funnel stage estimation logic (mock-friendly):
-     * - Use follow-up speed and conversion to shape the stages.
-     * - Keep monotonic decreasing and always >= converted.
-     */
+    // Contacted stage: still derived (we don't store contacted in funnel)
     const contactedBase =
         avgFollowUpHours <= 24 ? 0.82 : avgFollowUpHours <= 48 ? 0.76 : 0.68;
 
-    const engagedBase = 0.7 + (u - 0.5) * 0.06; // ~0.67..0.73
-    const qualifiedBase = 0.62 + (u - 0.5) * 0.06; // ~0.59..0.65
+    let contacted = clampInt(capturedLeads * contactedBase, 0, capturedLeads);
 
-    let contacted = clampInt(totalLeads * contactedBase, 0, totalLeads);
-    let engaged = clampInt(contacted * engagedBase, 0, contacted);
-    let qualified = clampInt(engaged * qualifiedBase, 0, engaged);
-    let converted = clampInt(convertedLeads, 0, totalLeads);
+    // Enforce monotonic consistency:
+    let converted = clampInt(convertedLeads, 0, capturedLeads);
+    let qualified = clampInt(qualifiedLeads, 0, capturedLeads);
+    let engaged = clampInt(engagedLeads, 0, capturedLeads);
 
-    // Ensure monotonic and converted <= qualified <= engaged <= contacted <= captured
     if (qualified < converted) qualified = converted;
     if (engaged < qualified) engaged = qualified;
+
+    // contacted must sit between captured and engaged
     if (contacted < engaged) contacted = engaged;
-    if (converted > totalLeads) converted = totalLeads;
+    if (contacted > capturedLeads) contacted = capturedLeads;
 
     const stages: FunnelStage[] = [
-        { key: "captured", label: stageLabel("captured"), value: totalLeads },
+        {
+            key: "captured",
+            label: stageLabel("captured"),
+            value: capturedLeads,
+        },
         { key: "contacted", label: stageLabel("contacted"), value: contacted },
         { key: "engaged", label: stageLabel("engaged"), value: engaged },
         { key: "qualified", label: stageLabel("qualified"), value: qualified },
@@ -107,11 +116,12 @@ export function buildConversionFunnelModel(report: any): ConversionFunnelModel {
         });
     }
 
-    const scoreBins = buildScoreBins(totalLeads, avgLeadScore, seed);
+    const seed = String(report?.id ?? report?.name ?? "seed");
+    const scoreBins = buildScoreBins(capturedLeads, avgLeadScore, seed);
 
-    const contactedRate = pct(contacted, totalLeads);
-    const engagedRate = pct(engaged, totalLeads);
-    const qualifiedRate = pct(qualified, totalLeads);
+    const contactedRate = pct(contacted, capturedLeads);
+    const engagedRate = pct(engaged, capturedLeads);
+    const qualifiedRate = pct(qualified, capturedLeads);
 
     const insights = buildInsights({
         stages,
@@ -125,11 +135,11 @@ export function buildConversionFunnelModel(report: any): ConversionFunnelModel {
         dropOff,
         scoreBins,
         summary: {
-            totalLeads,
+            totalLeads: capturedLeads,
             convertedLeads: converted,
-            conversionRate: Number.isFinite(conversionRate)
-                ? conversionRate
-                : pct(converted, totalLeads),
+            conversionRate: Number.isFinite(conversionRateFromSummary)
+                ? conversionRateFromSummary
+                : pct(converted, capturedLeads),
             avgLeadScore,
             avgFollowUpHours,
             contactedRate,
@@ -156,15 +166,13 @@ function buildScoreBins(
     const u = hashToUnit(seed + "_score");
     const center = clampInt(avgScore || 55, 10, 95);
 
-    // Weight by distance from center (simple bell-ish curve)
     const weights = bins.map((b) => {
         const mid = (b.min + b.max) / 2;
         const dist = Math.abs(mid - center);
-        const w = 1 / (1 + dist / 18); // closer => bigger
-        return w;
+        return 1 / (1 + dist / 18);
     });
 
-    // Add a bit of deterministic skew
+    // deterministic skew
     weights[0] *= 0.92 + u * 0.1;
     weights[4] *= 0.92 + (1 - u) * 0.1;
 
@@ -173,11 +181,9 @@ function buildScoreBins(
         Math.max(0, Math.floor((w / sumW) * totalLeads))
     );
 
-    // Fix rounding to totalLeads
     let allocated = rawCounts.reduce((a, b) => a + b, 0);
     let remaining = Math.max(0, totalLeads - allocated);
 
-    // Distribute remaining to bins closest to center
     const order = bins
         .map((b, i) => ({ i, mid: (b.min + b.max) / 2 }))
         .sort((a, b) => Math.abs(a.mid - center) - Math.abs(b.mid - center))
@@ -247,7 +253,7 @@ function buildInsights(args: {
     }
 
     insights.push(
-        "For mockup: stage counts are estimated from available KPIs; later we’ll compute stages from actual lead events and scoring rules."
+        "For mockup: Captured/Engaged/Qualified/Converted counts come from report.funnel. Contacted is derived using follow-up speed. Later this page will compute all stages from real engagement events and scoring rules."
     );
 
     return insights;

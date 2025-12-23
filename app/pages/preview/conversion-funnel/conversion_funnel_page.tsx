@@ -219,9 +219,9 @@ export default function ConversionFunnelPage() {
                 </div>
 
                 <div className="mt-3 rounded-lg border border-[#B3A125]/25 bg-[#B3A125]/10 p-3 text-xs text-[#193E6B]">
-                    Mockup note: stage progression is estimated from KPIs today;
-                    later it will be computed from engagement events & scoring
-                    rules.
+                    Mockup note: stage progression is estimated from funnel
+                    counts; later it will be computed from engagement events &
+                    scoring rules.
                 </div>
             </motion.div>
 
