@@ -40,5 +40,11 @@ export default [
 
         // "/preview/closed-lost"
         route("preview/closed-lost", "routes/preview.closed_lost.tsx"),
+
+        // "/preview/interest-aging-sla"
+        route(
+            "preview/interest-aging-sla",
+            "routes/preview.interest_aging_sla.tsx"
+        ),
     ]),
 ] satisfies RouteConfig;

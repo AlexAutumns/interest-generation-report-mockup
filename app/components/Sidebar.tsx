@@ -10,6 +10,9 @@ import {
     Megaphone,
     TrendingUp,
     FileWarning,
+    Timer,
+    Hourglass,
+    AlarmClock,
 } from "lucide-react";
 
 type NavItem = {
@@ -58,6 +61,11 @@ const previewSection: NavSection = {
             label: "Closed Lost Analysis",
             to: "/preview/closed-lost",
             icon: FileWarning,
+        },
+        {
+            label: "Interest Aging & SLA",
+            to: "/preview/interest-aging-sla",
+            icon: Hourglass,
         },
     ],
 };
