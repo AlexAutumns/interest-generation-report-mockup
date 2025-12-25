@@ -3,6 +3,9 @@
 export type ReportType = "weekly" | "monthly" | "quarterly";
 export type ReportStatus = "Completed" | "In Progress" | "Failed";
 
+/**
+ * Lightweight metrics used in Home + Archive list views.
+ */
 export type MetricsPreview = {
     totalLeads: number;
     convertedLeads: number;
@@ -24,6 +27,59 @@ export type ReportSummary = {
     status: ReportStatus;
 
     metricsPreview: MetricsPreview;
+};
+
+/**
+ * Shared row types (so you can reuse in helpers/pages cleanly).
+ */
+export type LostReasonRow = {
+    reason: string;
+    count: number;
+};
+
+export type ChannelPerformanceRow = {
+    channel: string;
+    leads: number;
+    converted: number;
+    conversionRate: number; // percent
+    revenueUsd: number;
+    costUsd: number;
+};
+
+export type CampaignPerformanceRow = {
+    campaign: string;
+    leads: number;
+    converted: number;
+    conversionRate: number; // percent
+    revenueUsd: number;
+    costUsd: number;
+};
+
+/**
+ * Optional “matrix” row if you later want Campaign x Channel visuals.
+ * (Not required right now — but useful later.)
+ */
+export type CampaignChannelRow = {
+    campaign: string;
+    channel: string;
+    leads: number;
+    converted: number;
+    conversionRate: number; // percent
+};
+
+export type RegionPerformanceRow = {
+    region: string;
+    leads: number;
+    converted: number;
+    conversionRate: number; // percent
+};
+
+export type AgentPerformanceRow = {
+    agent: string;
+    leads: number;
+    converted: number;
+    conversionRate: number; // percent
+    avgLeadScore: number;
 };
 
 export type GeneratedReport = {
@@ -56,17 +112,16 @@ export type GeneratedReport = {
         qualifiedLeads: number;
         lostLeads: number;
         slaBreachCount: number;
-        lostReasons: Array<{ reason: string; count: number }>;
+        lostReasons: LostReasonRow[];
     };
 
-    channels: Array<{
-        channel: string;
-        leads: number;
-        converted: number;
-        conversionRate: number; // percent
-        revenueUsd: number;
-        costUsd: number;
-    }>;
+    channels: ChannelPerformanceRow[];
+
+    // NEW (optional for backwards compatibility)
+    campaigns?: CampaignPerformanceRow[];
+
+    // NEW (optional) campaign x channel matrix
+    campaignChannels?: CampaignChannelRow[];
 
     funnel: {
         new: number;
@@ -76,18 +131,6 @@ export type GeneratedReport = {
         lost: number;
     };
 
-    regions?: Array<{
-        region: string;
-        leads: number;
-        converted: number;
-        conversionRate: number; // percent
-    }>;
-
-    agents?: Array<{
-        agent: string;
-        leads: number;
-        converted: number;
-        conversionRate: number; // percent
-        avgLeadScore: number;
-    }>;
+    regions?: RegionPerformanceRow[];
+    agents?: AgentPerformanceRow[];
 };

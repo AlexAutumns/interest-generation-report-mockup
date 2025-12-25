@@ -37,5 +37,8 @@ export default [
             "preview/conversion-funnel",
             "routes/preview.conversion_funnel.tsx"
         ),
+
+        // "/preview/closed-lost"
+        route("preview/closed-lost", "routes/preview.closed_lost.tsx"),
     ]),
 ] satisfies RouteConfig;

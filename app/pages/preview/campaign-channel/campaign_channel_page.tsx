@@ -1,4 +1,6 @@
 import { Link, useSearchParams } from "react-router";
+import { useMemo, useState } from "react";
+
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "../../../utils/cn";
@@ -16,6 +18,14 @@ import { generatedReports } from "../../../data/mockReportsFull";
 import ChannelChartsRecharts from "./channel_charts_recharts";
 import ChannelRoiTable from "./channel_roi_table";
 import { buildChannelRows } from "./campaign_channel_helpers";
+import {
+    buildCampaignRows,
+    getTopCampaignLabel,
+    CAMPAIGN_RANK_OPTIONS,
+    type CampaignRankBy,
+} from "./campaign_channel_helpers";
+import CampaignChartsRecharts from "./campaign_charts_recharts";
+import CampaignRoiTable from "./campaign_roi_table";
 
 function buildCampaignChannelPath(reportId: string) {
     return `/preview/campaign-channel?reportId=${encodeURIComponent(reportId)}`;
@@ -60,6 +70,19 @@ export default function CampaignChannelPage() {
 
     const rows = buildChannelRows(report);
     const topChannel = rows[0];
+
+    const [campaignRankBy, setCampaignRankBy] =
+        useState<CampaignRankBy>("leads");
+
+    const campaignRows = useMemo(
+        () => buildCampaignRows(report, campaignRankBy),
+        [report, campaignRankBy]
+    );
+
+    const topCampaign = useMemo(
+        () => getTopCampaignLabel(report, campaignRankBy),
+        [report, campaignRankBy]
+    );
 
     const reportPath = buildCampaignChannelPath(report.id);
 
@@ -241,6 +264,86 @@ export default function CampaignChannelPage() {
                 whileHover={{ y: -2 }}
             >
                 <ChannelRoiTable rows={rows} />
+            </motion.div>
+
+            {/* Campaign controls + highlights */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22, delay: 0.13 }}
+                whileHover={{ y: -2 }}
+                className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+            >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <div className="text-base font-semibold text-[#193E6B]">
+                            Campaign analysis (mock)
+                        </div>
+                        <p className="mt-1 text-sm text-gray-600">
+                            Breakdown by campaign. Choose what “top” means for
+                            this view.
+                        </p>
+                    </div>
+
+                    {/* Simple selector (no shadcn required) */}
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-gray-500">
+                            Top by
+                        </span>
+                        <select
+                            value={campaignRankBy}
+                            onChange={(e) => {
+                                const v = e.target.value as CampaignRankBy;
+                                setCampaignRankBy(v);
+                                toast("Updated campaign ranking", {
+                                    description:
+                                        CAMPAIGN_RANK_OPTIONS.find(
+                                            (o) => o.value === v
+                                        )?.label ?? v,
+                                });
+                            }}
+                            className="h-10 rounded-md border border-gray-200 bg-white px-3 text-sm font-semibold text-[#193E6B] shadow-sm hover:bg-gray-50"
+                        >
+                            {CAMPAIGN_RANK_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                    <span className="inline-flex items-center rounded-full bg-[#193E6B]/5 px-3 py-1 text-xs font-semibold text-[#193E6B] ring-1 ring-[#193E6B]/10">
+                        Top campaign: {topCampaign}
+                    </span>
+                    <span className="inline-flex items-center rounded-full bg-[#B3A125]/10 px-3 py-1 text-xs font-semibold text-[#193E6B] ring-1 ring-[#B3A125]/25">
+                        Campaigns: {campaignRows.length}
+                    </span>
+                </div>
+            </motion.div>
+
+            {/* Campaign charts */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22, delay: 0.15 }}
+                whileHover={{ y: -2 }}
+            >
+                <CampaignChartsRecharts
+                    rows={campaignRows}
+                    title="Top campaigns"
+                />
+            </motion.div>
+
+            {/* Campaign table */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22, delay: 0.17 }}
+                whileHover={{ y: -2 }}
+            >
+                <CampaignRoiTable rows={campaignRows} />
             </motion.div>
 
             {/* Next step nav */}

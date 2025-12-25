@@ -9,6 +9,7 @@ import {
     Gauge,
     Megaphone,
     TrendingUp,
+    FileWarning,
 } from "lucide-react";
 
 type NavItem = {
@@ -52,6 +53,11 @@ const previewSection: NavSection = {
             label: "Conversion & Funnel",
             to: "/preview/conversion-funnel",
             icon: TrendingUp,
+        },
+        {
+            label: "Closed Lost Analysis",
+            to: "/preview/closed-lost",
+            icon: FileWarning,
         },
     ],
 };
