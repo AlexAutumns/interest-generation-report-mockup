@@ -1,12 +1,105 @@
 // app/data/mockReportsFull.ts
 import type { GeneratedReport } from "../types/reports";
 
+const DEFAULT_AGENT_NAMES = [
+    "Agent Anna",
+    "Agent Ben",
+    "Agent Chris",
+    "Agent Dana",
+] as const;
+
+function hashSeed(input: string) {
+    let h = 2166136261;
+    for (let i = 0; i < input.length; i++) {
+        h ^= input.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+    }
+    return Math.abs(h);
+}
+
+function seededRand(seed: number) {
+    let s = seed % 2147483647;
+    if (s <= 0) s += 2147483646;
+    return () => (s = (s * 16807) % 2147483647) / 2147483647;
+}
+
+function clamp(n: number, min: number, max: number) {
+    return Math.max(min, Math.min(max, n));
+}
+
+function round1(n: number) {
+    return Math.round(n * 10) / 10;
+}
+
+// Distribute integer "total" across weights (preserves total)
+function distribute(total: number, weights: number[]) {
+    const wSum = weights.reduce((s, w) => s + w, 0) || 1;
+
+    const raw = weights.map((w) => (total * w) / wSum);
+    const base = raw.map((x) => Math.floor(x));
+    let remainder = total - base.reduce((s, x) => s + x, 0);
+
+    // Largest remainder method
+    const frac = raw.map((x, i) => ({ i, f: x - base[i] }));
+    frac.sort((a, b) => b.f - a.f);
+
+    for (let k = 0; k < frac.length && remainder > 0; k++) {
+        base[frac[k].i] += 1;
+        remainder -= 1;
+    }
+    return base;
+}
+
+function ensureAgents(report: GeneratedReport): GeneratedReport {
+    // If already present, keep as-is (your file already has this for some reports)
+    if (report.agents && report.agents.length > 0) return report;
+
+    const totalLeads = report.executiveSummary?.totalLeads ?? 0;
+    const totalConverted = report.executiveSummary?.convertedLeads ?? 0;
+    const avgScore = report.executiveSummary?.avgLeadScore ?? 65;
+
+    const rnd = seededRand(hashSeed(report.id));
+
+    // Stable weights per report
+    const leadWeights = DEFAULT_AGENT_NAMES.map(() => 0.8 + rnd() * 0.6);
+    const leadsSplit = distribute(totalLeads, leadWeights);
+
+    // Converted split roughly proportional to leads but with slight variation
+    const convWeights = leadsSplit.map((l) =>
+        Math.max(0.01, l * (0.9 + rnd() * 0.2))
+    );
+    const convSplit = distribute(
+        Math.min(totalConverted, totalLeads),
+        convWeights
+    );
+
+    const agents = DEFAULT_AGENT_NAMES.map((name, idx) => {
+        const leads = leadsSplit[idx] ?? 0;
+        const converted = Math.min(convSplit[idx] ?? 0, leads);
+        const conversionRate =
+            leads > 0 ? round1((converted / leads) * 100) : 0;
+
+        // small stable variation around report avg
+        const score = round1(clamp(avgScore + (rnd() - 0.5) * 8, 40, 95));
+
+        return {
+            agent: name,
+            leads,
+            converted,
+            conversionRate,
+            avgLeadScore: score,
+        };
+    });
+
+    return { ...report, agents };
+}
+
 /**
  * Full mock reports (source of truth)
  * - Preview pages should read from this list (find by id)
  * - Home/Archive summaries should be derived from this list
  */
-export const generatedReports: GeneratedReport[] = [
+const baseReports: GeneratedReport[] = [
     // ------------------------
     // Weekly (5)
     // ------------------------
@@ -1562,3 +1655,6 @@ export const generatedReports: GeneratedReport[] = [
         },
     },
 ];
+
+export const generatedReports: GeneratedReport[] =
+    baseReports.map(ensureAgents);

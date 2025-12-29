@@ -46,5 +46,11 @@ export default [
             "preview/interest-aging-sla",
             "routes/preview.interest_aging_sla.tsx"
         ),
+
+        // "/preview/team-performance"
+        route(
+            "preview/team-performance",
+            "routes/preview.team_performance.tsx"
+        ),
     ]),
 ] satisfies RouteConfig;

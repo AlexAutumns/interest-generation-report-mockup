@@ -13,6 +13,7 @@ import {
     Timer,
     Hourglass,
     AlarmClock,
+    Trophy,
 } from "lucide-react";
 
 type NavItem = {
@@ -66,6 +67,11 @@ const previewSection: NavSection = {
             label: "Interest Aging & SLA",
             to: "/preview/interest-aging-sla",
             icon: Hourglass,
+        },
+        {
+            label: "Team Performance",
+            to: "/preview/team-performance",
+            icon: Trophy,
         },
     ],
 };
