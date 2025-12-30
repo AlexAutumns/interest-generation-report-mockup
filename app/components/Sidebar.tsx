@@ -1,5 +1,5 @@
 // app/components/Sidebar.tsx
-import { NavLink } from "react-router";
+import { NavLink, useLocation } from "react-router";
 import type { ComponentType, SVGProps } from "react";
 import {
     Home,
@@ -88,7 +88,27 @@ function navClass(isActive: boolean) {
     return `${base} ${isActive ? active : inactive}`;
 }
 
+function getReportIdFromSearch(search: string) {
+    const params = new URLSearchParams(search);
+    return params.get("reportId");
+}
+
+function withReportId(path: string, reportId: string | null) {
+    if (!reportId) return path;
+    if (!path.startsWith("/preview")) return path;
+
+    const hasQuery = path.includes("?");
+    const params = new URLSearchParams(hasQuery ? path.split("?")[1] : "");
+    if (params.has("reportId")) return path;
+
+    const joiner = hasQuery ? "&" : "?";
+    return `${path}${joiner}reportId=${reportId}`;
+}
+
 export function Sidebar() {
+    const location = useLocation();
+    const reportId = getReportIdFromSearch(location.search);
+
     return (
         <aside className="flex h-full min-h-[calc(100vh-4rem)] w-64 flex-shrink-0 flex-col border-r border-gray-200 bg-white px-4 py-4">
             <nav className="flex flex-1 flex-col gap-4 text-sm">
@@ -99,19 +119,27 @@ export function Sidebar() {
                                 {section.title}
                             </div>
                         )}
-                        {section.items.map((item) => (
-                            <NavLink
-                                key={item.to}
-                                to={item.to}
-                                end={item.to === "/"}
-                                className={({ isActive }) => navClass(isActive)}
-                            >
-                                {item.icon && (
-                                    <item.icon className="h-4 w-4 flex-shrink-0" />
-                                )}
-                                <span className="truncate">{item.label}</span>
-                            </NavLink>
-                        ))}
+                        {section.items.map((item) => {
+                            const to = withReportId(item.to, reportId);
+
+                            return (
+                                <NavLink
+                                    key={item.to}
+                                    to={to}
+                                    end={item.to === "/"}
+                                    className={({ isActive }) =>
+                                        navClass(isActive)
+                                    }
+                                >
+                                    {item.icon && (
+                                        <item.icon className="h-4 w-4 flex-shrink-0" />
+                                    )}
+                                    <span className="truncate">
+                                        {item.label}
+                                    </span>
+                                </NavLink>
+                            );
+                        })}
                     </div>
                 ))}
             </nav>
