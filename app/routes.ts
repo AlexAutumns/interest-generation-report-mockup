@@ -52,5 +52,8 @@ export default [
             "preview/team-performance",
             "routes/preview.team_performance.tsx"
         ),
+
+        // "/preview/geographic-view"
+        route("preview/geographic-view", "routes/preview.geographic_view.tsx"),
     ]),
 ] satisfies RouteConfig;

@@ -14,6 +14,9 @@ import {
     Hourglass,
     AlarmClock,
     Trophy,
+    Globe,
+    GlobeIcon,
+    Globe2Icon,
 } from "lucide-react";
 
 type NavItem = {
@@ -72,6 +75,11 @@ const previewSection: NavSection = {
             label: "Team Performance",
             to: "/preview/team-performance",
             icon: Trophy,
+        },
+        {
+            label: "Geographic View",
+            to: "/preview/geographic-view",
+            icon: Globe2Icon,
         },
     ],
 };
