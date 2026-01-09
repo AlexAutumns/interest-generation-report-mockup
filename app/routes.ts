@@ -14,8 +14,11 @@ export default [
         // "/archive"
         route("archive", "routes/archive.tsx"),
 
-        // // "/generate"
-        // route("generate", "routes/generate.tsx"),
+        // "/generate"
+        route("generate", "routes/generate.tsx"),
+
+        // "/generate/loading"
+        route("generate/loading", "routes/generate.loading.tsx"),
 
         // "/preview/executive-summary"
         route(
