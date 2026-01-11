@@ -1,36 +1,62 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
-import { latestReportSummary } from "../../data/mockReportSummaries";
 import { Sparkles, ArrowRight } from "lucide-react";
 import { formatGeneratedOn } from "./home_helpers";
+import { useReportsStore } from "../../state/reports_store";
+import type { ReportSummary } from "../../types/reports";
 
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 
 export default function LatestSnapshotRecharts() {
-    const latest = latestReportSummary;
+    const summaries = useReportsStore((s) => s.summaries);
+
+    // Always pick the truly latest by generatedOn (robust even if ordering changes later)
+    const latest: ReportSummary | undefined = useMemo(() => {
+        if (!summaries || summaries.length === 0) return undefined;
+
+        return summaries.reduce((best, curr) => {
+            const bestT = new Date(best.generatedOn).getTime();
+            const currT = new Date(curr.generatedOn).getTime();
+            return currT > bestT ? curr : best;
+        }, summaries[0]);
+    }, [summaries]);
 
     // ✅ Client-only gate for Recharts (prevents width/height -1)
     const [mounted, setMounted] = useState(false);
     useEffect(() => setMounted(true), []);
 
-    const { totalLeads, convertedLeads, pieData } = useMemo(() => {
+    const { totalLeads, convertedLeads, pieData, isEstimated } = useMemo(() => {
         if (!latest) {
-            return { totalLeads: 0, convertedLeads: 0, pieData: [] as any[] };
+            return {
+                totalLeads: 0,
+                convertedLeads: 0,
+                pieData: [] as any[],
+                isEstimated: false,
+            };
         }
 
         const total = latest.metricsPreview.totalLeads ?? 0;
 
-        // Summary mock only has conversionRate, so estimate converted
-        const converted = Math.round(
-            (latest.metricsPreview.conversionRate / 100) * total
+        // Prefer convertedLeads if present; otherwise estimate from conversionRate
+        const hasConvertedLeads = Number.isFinite(
+            (latest.metricsPreview as any).convertedLeads
         );
+
+        const converted = hasConvertedLeads
+            ? latest.metricsPreview.convertedLeads
+            : Math.round((latest.metricsPreview.conversionRate / 100) * total);
 
         const pie = [
             { name: "Converted", value: Math.max(0, converted) },
             { name: "Not converted", value: Math.max(0, total - converted) },
         ];
 
-        return { totalLeads: total, convertedLeads: converted, pieData: pie };
+        return {
+            totalLeads: total,
+            convertedLeads: converted,
+            pieData: pie,
+            isEstimated: !hasConvertedLeads,
+        };
     }, [latest]);
 
     return (
@@ -116,9 +142,12 @@ export default function LatestSnapshotRecharts() {
                                 Not converted:{" "}
                                 {Math.max(0, totalLeads - convertedLeads)}
                             </span>
-                            <span className="ml-auto text-[11px] text-gray-500">
-                                *Converted is estimated
-                            </span>
+
+                            {isEstimated ? (
+                                <span className="ml-auto text-[11px] text-gray-500">
+                                    *Converted is estimated
+                                </span>
+                            ) : null}
                         </div>
 
                         <div className="mt-3 grid grid-cols-2 gap-3">
@@ -144,7 +173,9 @@ export default function LatestSnapshotRecharts() {
 
                     <div className="mt-4">
                         <Link
-                            to={`/preview/executive-summary?reportId=${encodeURIComponent(latest.id)}`}
+                            to={`/preview/executive-summary?reportId=${encodeURIComponent(
+                                latest.id
+                            )}`}
                             className="inline-flex items-center gap-2 text-sm font-semibold text-[#193E6B] hover:underline"
                         >
                             Open preview <ArrowRight className="h-4 w-4" />

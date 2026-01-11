@@ -14,7 +14,7 @@ import {
     ArrowRight,
 } from "lucide-react";
 
-import { generatedReports } from "../../../data/mockReportsFull";
+import { useReportsStore } from "../../../state/reports_store";
 import { buildConversionFunnelModel } from "./conversion_funnel_helpers";
 
 import FunnelChartsRecharts from "./funnel_charts_recharts";
@@ -35,10 +35,12 @@ export default function ConversionFunnelPage() {
     const [params] = useSearchParams();
     const reportId = params.get("reportId");
 
+    const reports = useReportsStore((s) => s.reports);
+
     const report =
-        (reportId &&
-            (generatedReports as any[]).find((r) => r.id === reportId)) ??
-        (generatedReports as any[])[0];
+        (reportId
+            ? (reports as any[]).find((r) => r.id === reportId)
+            : undefined) ?? (reports as any[])[0];
 
     if (!report) {
         return (

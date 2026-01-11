@@ -14,7 +14,7 @@ import {
     ArrowRight,
 } from "lucide-react";
 
-import { generatedReports } from "../../../data/mockReportsFull";
+import { useReportsStore } from "../../../state/reports_store";
 import ChannelChartsRecharts from "./channel_charts_recharts";
 import ChannelRoiTable from "./channel_roi_table";
 import { buildChannelRows } from "./campaign_channel_helpers";
@@ -40,10 +40,12 @@ export default function CampaignChannelPage() {
     const [params] = useSearchParams();
     const reportId = params.get("reportId");
 
+    const reports = useReportsStore((s) => s.reports);
+
     const report =
-        (reportId &&
-            (generatedReports as any[]).find((r) => r.id === reportId)) ??
-        (generatedReports as any[])[0];
+        (reportId
+            ? (reports as any[]).find((r) => r.id === reportId)
+            : undefined) ?? (reports as any[])[0];
 
     if (!report) {
         return (

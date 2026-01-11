@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
-import { generatedReports } from "../../../data/mockReportsFull";
+import { useReportsStore } from "../../../state/reports_store";
 import type { GeneratedReport } from "../../../types/reports";
 
 import { ArrowLeft, Copy, Download, ExternalLink, Globe } from "lucide-react";
@@ -26,10 +26,12 @@ export default function GeographicViewPage() {
     const [params] = useSearchParams();
     const reportId = params.get("reportId");
 
+    const reports = useReportsStore((s) => s.reports);
+
     const report =
-        (reportId &&
-            (generatedReports as any[]).find((r) => r.id === reportId)) ??
-        (generatedReports as any[])[0];
+        (reportId
+            ? (reports as any[]).find((r) => r.id === reportId)
+            : undefined) ?? (reports as any[])[0];
 
     // Gate Leaflet render to client only
     const [mounted, setMounted] = useState(false);

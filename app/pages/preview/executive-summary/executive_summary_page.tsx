@@ -1,5 +1,6 @@
 import { Link, useSearchParams } from "react-router";
-import { generatedReports } from "../../../data/mockReportsFull";
+import { useReportsStore } from "../../../state/reports_store";
+
 import {
     FileText,
     ArrowLeft,
@@ -41,9 +42,11 @@ export default function ExecutiveSummaryPage() {
     const [params] = useSearchParams();
     const reportId = params.get("reportId");
 
+    const reports = useReportsStore((s) => s.reports);
+
     const report =
-        (reportId && generatedReports.find((r) => r.id === reportId)) ??
-        generatedReports[0];
+        (reportId ? reports.find((r) => r.id === reportId) : undefined) ??
+        reports[0];
 
     if (!report) {
         return (

@@ -11,7 +11,7 @@ import {
     ExternalLink,
 } from "lucide-react";
 
-import { generatedReports } from "../../../data/mockReportsFull";
+import { useReportsStore } from "../../../state/reports_store";
 import type { GeneratedReportShape } from "./kpi_overview_types";
 import {
     buildChannelBreakdown,
@@ -36,12 +36,13 @@ export default function KpiOverviewPage() {
     const [params] = useSearchParams();
     const reportId = params.get("reportId");
 
+    const reports = useReportsStore(
+        (s) => s.reports
+    ) as unknown as GeneratedReportShape[];
+
     const report =
-        (reportId &&
-            (generatedReports as GeneratedReportShape[]).find(
-                (r) => r.id === reportId
-            )) ??
-        (generatedReports as GeneratedReportShape[])[0];
+        (reportId ? reports.find((r) => r.id === reportId) : undefined) ??
+        reports[0];
 
     if (!report) {
         return (

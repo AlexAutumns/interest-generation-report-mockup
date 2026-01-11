@@ -2,7 +2,7 @@ import { Link, useSearchParams } from "react-router";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
-import { generatedReports } from "../../../data/mockReportsFull";
+import { useReportsStore } from "../../../state/reports_store";
 
 import {
     Timer,
@@ -78,10 +78,12 @@ export default function InterestAgingSlaPage() {
     const [params] = useSearchParams();
     const reportId = params.get("reportId");
 
+    const reports = useReportsStore((s) => s.reports);
+
     const report =
-        (reportId &&
-            (generatedReports as any[]).find((r) => r.id === reportId)) ??
-        (generatedReports as any[])[0];
+        (reportId
+            ? (reports as any[]).find((r) => r.id === reportId)
+            : undefined) ?? (reports as any[])[0];
 
     if (!report) {
         return (

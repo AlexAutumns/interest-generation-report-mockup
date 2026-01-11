@@ -7,7 +7,7 @@ import {
     Download,
     ArrowRight,
 } from "lucide-react";
-import { reportSummaries } from "../../data/mockReportSummaries";
+import { useReportsStore } from "../../state/reports_store";
 
 import ArchiveFiltersBar from "./archive_filters_bar";
 import ArchiveInsights from "./archive_insights";
@@ -72,6 +72,8 @@ function buildAbsoluteUrl(path: string) {
 }
 
 export default function ArchivePage() {
+    const summaries = useReportsStore((s) => s.summaries);
+
     // Keep these simple strings (no union headaches)
     const [searchQuery, setSearchQuery] = useState("");
     const [typeFilter, setTypeFilter] = useState<string>("All");
@@ -82,7 +84,7 @@ export default function ArchivePage() {
         const q = safeLower(searchQuery).trim();
 
         // 1) Normalize the data into display-safe labels
-        let rows: ViewReport[] = reportSummaries.map((r: any) => ({
+        let rows: ViewReport[] = summaries.map((r: any) => ({
             id: r.id,
             name: r.name,
             periodLabel: r.periodLabel,
@@ -143,7 +145,7 @@ export default function ArchivePage() {
         });
 
         return rows;
-    }, [searchQuery, typeFilter, statusFilter, sortKey]);
+    }, [summaries, searchQuery, typeFilter, statusFilter, sortKey]);
 
     const latestReport = filteredSorted[0];
 

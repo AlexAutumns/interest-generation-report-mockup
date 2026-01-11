@@ -1,6 +1,6 @@
 // app/pages/home/recent_reports_table.tsx
 import { Link } from "react-router";
-import { reportSummaries } from "../../data/mockReportSummaries";
+import { useReportsStore } from "../../state/reports_store";
 import { Clock, Archive, ArrowRight, Copy, Download } from "lucide-react";
 import { toast } from "sonner";
 import { badgeClass, formatGeneratedOn, typePillClass } from "./home_helpers";
@@ -10,6 +10,8 @@ function buildExecutiveSummaryUrl(reportId: string) {
 }
 
 export default function RecentReportsTable() {
+    const reportSummaries = useReportsStore((s) => s.summaries);
+
     function handleCopyLink(reportId: string) {
         const url =
             typeof window !== "undefined"
