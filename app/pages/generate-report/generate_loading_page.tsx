@@ -86,7 +86,7 @@ export default function GenerateLoadingPage() {
             toast.error("No base report found", {
                 description: "Seed data is missing.",
             });
-            navigate("/home");
+            navigate("/");
             return;
         }
 
@@ -124,7 +124,7 @@ export default function GenerateLoadingPage() {
             cancelled = true;
             if (timer) window.clearTimeout(timer);
         };
-    }, [lastSettings, latest, navigate, reportRepository]);
+    }, [lastSettings, latest, navigate]);
 
     const progressPct = Math.round(((currentIdx + 1) / steps.length) * 100);
 
