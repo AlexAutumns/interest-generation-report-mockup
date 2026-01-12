@@ -5,8 +5,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "../../../utils/cn";
 
-import { useReportsStore } from "../../../state/reports_store";
-import type { GeneratedReport } from "../../../types/reports";
+import { useReportByIdSafe } from "../../../services/report_repository";
 
 import {
     FileWarning,
@@ -77,14 +76,9 @@ function statusBadge(status: string) {
 
 export default function ClosedLostPage() {
     const [params] = useSearchParams();
-    const reportId = params.get("reportId");
+    const reportId = params.get("reportId") ?? undefined;
 
-    const reports = useReportsStore((s) => s.reports);
-
-    const report =
-        (reportId
-            ? (reports as any[]).find((r) => r.id === reportId)
-            : undefined) ?? (reports as any[])[0];
+    const report = useReportByIdSafe(reportId);
 
     if (!report) {
         return (

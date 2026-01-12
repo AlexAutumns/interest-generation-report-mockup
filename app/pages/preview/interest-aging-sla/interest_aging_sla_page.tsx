@@ -2,7 +2,7 @@ import { Link, useSearchParams } from "react-router";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
-import { useReportsStore } from "../../../state/reports_store";
+import { useReportByIdSafe } from "../../../services/report_repository";
 
 import {
     Timer,
@@ -17,7 +17,6 @@ import {
     CheckCircle2,
 } from "lucide-react";
 
-import type { GeneratedReport } from "../../../types/reports";
 import {
     buildAgingDistribution,
     buildSlaStats,
@@ -76,14 +75,9 @@ function statusBadge(status: string) {
 
 export default function InterestAgingSlaPage() {
     const [params] = useSearchParams();
-    const reportId = params.get("reportId");
+    const reportId = params.get("reportId") ?? undefined;
 
-    const reports = useReportsStore((s) => s.reports);
-
-    const report =
-        (reportId
-            ? (reports as any[]).find((r) => r.id === reportId)
-            : undefined) ?? (reports as any[])[0];
+    const report = useReportByIdSafe(reportId);
 
     if (!report) {
         return (
@@ -108,12 +102,10 @@ export default function InterestAgingSlaPage() {
         );
     }
 
-    const typedReport = report as GeneratedReport;
+    const agingRows = buildAgingDistribution(report);
+    const sla = buildSlaStats(report);
 
-    const agingRows = buildAgingDistribution(typedReport);
-    const sla = buildSlaStats(typedReport);
-
-    const reportPath = buildInterestAgingSlaPath(typedReport.id);
+    const reportPath = buildInterestAgingSlaPath(report.id);
 
     function handleCopyLink() {
         const url = buildAbsoluteUrl(reportPath);
@@ -167,7 +159,7 @@ export default function InterestAgingSlaPage() {
                         SLA target.
                     </p>
                     <div className="text-xs text-gray-500">
-                        {typedReport.name} • {typedReport.periodLabel}
+                        {report.name} • {report.periodLabel}
                     </div>
                 </div>
 
@@ -198,7 +190,7 @@ export default function InterestAgingSlaPage() {
 
                     <button
                         type="button"
-                        onClick={() => handleOpenNewTab(typedReport.name)}
+                        onClick={() => handleOpenNewTab(report.name)}
                         className={cn(
                             "hidden items-center gap-2 rounded-md border border-[#B3A125]/35 bg-[#B3A125]/10 px-3 py-2 text-sm font-semibold",
                             "text-[#193E6B] hover:bg-[#B3A125]/15 sm:inline-flex"
@@ -229,12 +221,12 @@ export default function InterestAgingSlaPage() {
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div>
                         <div className="text-base font-semibold text-[#193E6B]">
-                            {typedReport.periodLabel}
+                            {report.periodLabel}
                         </div>
                         <div className="mt-1 text-sm text-gray-600">
                             {formatDateRange(
-                                typedReport.periodStart,
-                                typedReport.periodEnd
+                                report.periodStart,
+                                report.periodEnd
                             )}
                         </div>
                     </div>
@@ -242,21 +234,21 @@ export default function InterestAgingSlaPage() {
                     <div className="flex flex-wrap items-center gap-2 text-sm">
                         <span
                             className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${statusBadge(
-                                typedReport.status
+                                report.status
                             )}`}
                         >
                             <BadgeCheck className="h-4 w-4" />
-                            {typedReport.status}
+                            {report.status}
                         </span>
 
                         <span className="inline-flex items-center gap-2 rounded-full bg-[#193E6B]/5 px-3 py-1 text-xs font-semibold text-[#193E6B] ring-1 ring-[#193E6B]/10">
                             <CalendarDays className="h-4 w-4" />
-                            Generated: {formatDateTime(typedReport.generatedOn)}
+                            Generated: {formatDateTime(report.generatedOn)}
                         </span>
 
                         <span className="inline-flex items-center gap-2 rounded-full bg-[#193E6B]/5 px-3 py-1 text-xs font-semibold text-[#193E6B] ring-1 ring-[#193E6B]/10">
                             <User className="h-4 w-4" />
-                            {typedReport.generatedBy}
+                            {report.generatedBy}
                         </span>
                     </div>
                 </div>

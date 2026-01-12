@@ -1,5 +1,5 @@
 import { Link, useSearchParams } from "react-router";
-import { useReportsStore } from "../../../state/reports_store";
+import { useReportByIdSafe } from "../../../services/report_repository";
 
 import {
     FileText,
@@ -40,13 +40,9 @@ function buildAbsoluteUrl(path: string) {
 
 export default function ExecutiveSummaryPage() {
     const [params] = useSearchParams();
-    const reportId = params.get("reportId");
+    const reportId = params.get("reportId") ?? undefined;
 
-    const reports = useReportsStore((s) => s.reports);
-
-    const report =
-        (reportId ? reports.find((r) => r.id === reportId) : undefined) ??
-        reports[0];
+    const report = useReportByIdSafe(reportId);
 
     if (!report) {
         return (
@@ -73,7 +69,7 @@ export default function ExecutiveSummaryPage() {
 
     const s = report.executiveSummary;
 
-    const channelTop: ChannelTopRow[] = [...report.channels]
+    const channelTop: ChannelTopRow[] = [...(report.channels ?? [])]
         .sort((a, b) => b.leads - a.leads)
         .slice(0, 6)
         .map((c) => ({

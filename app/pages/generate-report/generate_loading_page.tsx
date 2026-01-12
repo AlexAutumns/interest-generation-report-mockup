@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 import { useGenerateReportStore } from "../../state/generate_report_store";
-import { useReportsStore } from "../../state/reports_store";
+import { reportRepository, useReports } from "../../services/report_repository";
 import type { GeneratedReport, ReportSummary } from "../../types/reports";
 
 type StepKey = "compile" | "compute" | "render" | "publish";
@@ -80,8 +80,7 @@ export default function GenerateLoadingPage() {
     const navigate = useNavigate();
 
     const { lastSettings } = useGenerateReportStore();
-    const { reports, addReport } = useReportsStore();
-
+    const reports = useReports();
     const latest = useMemo(() => reports?.[0], [reports]);
 
     const steps: Step[] = [
@@ -130,7 +129,13 @@ export default function GenerateLoadingPage() {
             return;
         }
 
-        if (!latest) return;
+        if (!latest) {
+            toast.error("No base report found", {
+                description: "Seed data is missing.",
+            });
+            navigate("/home");
+            return;
+        }
 
         let cancelled = false;
         let timer: number | undefined;
@@ -151,7 +156,7 @@ export default function GenerateLoadingPage() {
             const newReport = buildMockReportFromLatest(latest, newId);
             const newSummary = buildSummaryFromReport(newReport);
 
-            addReport(newReport, newSummary);
+            reportRepository.addGeneratedReport(newReport, newSummary);
 
             toast.success("Report generated", {
                 description: "Redirecting to Executive Summary…",
@@ -168,9 +173,8 @@ export default function GenerateLoadingPage() {
             cancelled = true;
             if (timer) window.clearTimeout(timer);
         };
-    }, [lastSettings, latest, addReport, navigate]);
+    }, [lastSettings, latest, navigate]);
 
-    const doneCount = Math.min(currentIdx, steps.length - 1);
     const progressPct = Math.round(((currentIdx + 1) / steps.length) * 100);
 
     return (

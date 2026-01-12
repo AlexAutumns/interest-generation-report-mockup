@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 import { Sparkles, ArrowRight } from "lucide-react";
 import { formatGeneratedOn } from "./home_helpers";
-import { useReportsStore } from "../../state/reports_store";
+import { useReportSummaries } from "../../services/report_repository";
+
 import type { ReportSummary } from "../../types/reports";
 
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 
 export default function LatestSnapshotRecharts() {
-    const summaries = useReportsStore((s) => s.summaries);
+    const summaries = useReportSummaries();
 
     // Always pick the truly latest by generatedOn (robust even if ordering changes later)
     const latest: ReportSummary | undefined = useMemo(() => {

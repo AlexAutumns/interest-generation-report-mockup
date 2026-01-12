@@ -14,7 +14,7 @@ import {
     ArrowRight,
 } from "lucide-react";
 
-import { useReportsStore } from "../../../state/reports_store";
+import { useReportByIdSafe } from "../../../services/report_repository";
 import { buildConversionFunnelModel } from "./conversion_funnel_helpers";
 
 import FunnelChartsRecharts from "./funnel_charts_recharts";
@@ -33,14 +33,9 @@ function buildAbsoluteUrl(path: string) {
 
 export default function ConversionFunnelPage() {
     const [params] = useSearchParams();
-    const reportId = params.get("reportId");
+    const reportId = params.get("reportId") ?? undefined;
 
-    const reports = useReportsStore((s) => s.reports);
-
-    const report =
-        (reportId
-            ? (reports as any[]).find((r) => r.id === reportId)
-            : undefined) ?? (reports as any[])[0];
+    const report = useReportByIdSafe(reportId);
 
     if (!report) {
         return (

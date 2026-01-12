@@ -11,7 +11,6 @@ import {
     ExternalLink,
 } from "lucide-react";
 
-import { useReportsStore } from "../../../state/reports_store";
 import type { GeneratedReportShape } from "./kpi_overview_types";
 import {
     buildChannelBreakdown,
@@ -22,6 +21,7 @@ import {
 import KpiTiles from "./kpi_tiles";
 import KpiTrendRecharts from "./kpi_trend_recharts";
 import KpiBreakdownTable from "./kpi_breakdown_table";
+import { useReportByIdSafe } from "../../../services/report_repository";
 
 function buildKpiOverviewPath(reportId: string) {
     return `/preview/kpi-overview?reportId=${encodeURIComponent(reportId)}`;
@@ -34,15 +34,9 @@ function buildAbsoluteUrl(path: string) {
 
 export default function KpiOverviewPage() {
     const [params] = useSearchParams();
-    const reportId = params.get("reportId");
+    const reportId = params.get("reportId") ?? undefined;
 
-    const reports = useReportsStore(
-        (s) => s.reports
-    ) as unknown as GeneratedReportShape[];
-
-    const report =
-        (reportId ? reports.find((r) => r.id === reportId) : undefined) ??
-        reports[0];
+    const report = useReportByIdSafe(reportId);
 
     if (!report) {
         return (

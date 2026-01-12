@@ -7,7 +7,7 @@ import {
     Download,
     ArrowRight,
 } from "lucide-react";
-import { useReportsStore } from "../../state/reports_store";
+import { useReportSummaries } from "../../services/report_repository";
 
 import ArchiveFiltersBar from "./archive_filters_bar";
 import ArchiveInsights from "./archive_insights";
@@ -72,7 +72,7 @@ function buildAbsoluteUrl(path: string) {
 }
 
 export default function ArchivePage() {
-    const summaries = useReportsStore((s) => s.summaries);
+    const summaries = useReportSummaries();
 
     // Keep these simple strings (no union headaches)
     const [searchQuery, setSearchQuery] = useState("");

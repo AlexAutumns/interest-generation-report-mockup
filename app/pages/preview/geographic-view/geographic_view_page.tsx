@@ -3,8 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
-import { useReportsStore } from "../../../state/reports_store";
-import type { GeneratedReport } from "../../../types/reports";
+import { useReportByIdSafe } from "../../../services/report_repository";
 
 import { ArrowLeft, Copy, Download, ExternalLink, Globe } from "lucide-react";
 
@@ -24,14 +23,9 @@ function buildAbsoluteUrl(path: string) {
 
 export default function GeographicViewPage() {
     const [params] = useSearchParams();
-    const reportId = params.get("reportId");
+    const reportId = params.get("reportId") ?? undefined;
 
-    const reports = useReportsStore((s) => s.reports);
-
-    const report =
-        (reportId
-            ? (reports as any[]).find((r) => r.id === reportId)
-            : undefined) ?? (reports as any[])[0];
+    const report = useReportByIdSafe(reportId);
 
     // Gate Leaflet render to client only
     const [mounted, setMounted] = useState(false);
@@ -39,13 +33,11 @@ export default function GeographicViewPage() {
 
     const [metricKey, setMetricKey] = useState<GeoMetricKey>("leads");
 
-    const typedReport = report as GeneratedReport | undefined;
-
     const rows = useMemo(() => {
-        return typedReport ? normalizeRegions(typedReport) : [];
-    }, [typedReport]);
+        return report ? normalizeRegions(report) : [];
+    }, [report]);
 
-    if (!typedReport) {
+    if (!report) {
         return (
             <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
                 <div className="text-lg font-semibold text-[#193E6B]">
@@ -68,7 +60,7 @@ export default function GeographicViewPage() {
         );
     }
 
-    const reportIdSafe = typedReport.id;
+    const reportIdSafe = report.id;
     const reportPath = buildGeographicViewPath(reportIdSafe);
 
     function handleCopyLink() {
@@ -129,7 +121,7 @@ export default function GeographicViewPage() {
                         Country-level performance with an interactive map.
                     </p>
                     <div className="text-xs text-gray-500">
-                        {typedReport.name} • {typedReport.periodLabel}
+                        {report.name} • {report.periodLabel}
                     </div>
                 </div>
 
