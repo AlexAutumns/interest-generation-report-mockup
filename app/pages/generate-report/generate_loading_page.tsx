@@ -13,12 +13,7 @@ import {
 
 import { useGenerateReportStore } from "../../state/generate_report_store";
 import { reportRepository, useReports } from "../../services/report_repository";
-import type { GeneratedReport, ReportSummary } from "../../types/reports";
-import {
-    buildPeriodLabelFromSettings,
-    buildPeriodRangeFromSettings,
-    pickReportName,
-} from "./generate_report_helpers";
+import { generateMockReportFromSettings } from "../../services/mock_report_generator";
 
 type StepKey = "compile" | "compute" | "render" | "publish";
 
@@ -32,53 +27,6 @@ type Step = {
 
 function cardClass() {
     return "rounded-xl border border-gray-200 bg-white p-6 shadow-sm";
-}
-
-function buildMockReportId() {
-    const now = new Date();
-    const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, "0");
-    const dd = String(now.getDate()).padStart(2, "0");
-    const rand = Math.floor(Math.random() * 900 + 100);
-    return `RPT-${yyyy}${mm}${dd}-${rand}`;
-}
-
-function buildMockReportFromLatest(
-    latest: GeneratedReport,
-    newId: string
-): GeneratedReport {
-    // Clone the latest mock report but update id/time/name a bit
-    const nowIso = new Date().toISOString();
-    return {
-        ...latest,
-        id: newId,
-        name: latest.name.replace(
-            /^Interest Generation Report/i,
-            "Interest Generation Report"
-        ),
-        generatedOn: nowIso,
-        status: "Completed",
-    };
-}
-
-function buildSummaryFromReport(r: GeneratedReport): ReportSummary {
-    return {
-        id: r.id,
-        name: r.name,
-        type: r.type,
-        periodLabel: r.periodLabel,
-        periodStart: r.periodStart,
-        periodEnd: r.periodEnd,
-        generatedOn: r.generatedOn,
-        generatedBy: r.generatedBy,
-        status: r.status,
-        metricsPreview: {
-            totalLeads: r.executiveSummary.totalLeads,
-            convertedLeads: r.executiveSummary.convertedLeads,
-            conversionRate: r.executiveSummary.conversionRate,
-            topChannel: r.executiveSummary.topChannel,
-        },
-    };
 }
 
 export default function GenerateLoadingPage() {
@@ -156,34 +104,17 @@ export default function GenerateLoadingPage() {
 
             if (cancelled) return;
 
-            // MOCK generation: copy latest report and treat as newly generated.
-            const newId = buildMockReportId();
-            const base = buildMockReportFromLatest(latest, newId);
+            const { report, summary } =
+                generateMockReportFromSettings(lastSettings);
 
-            const periodLabel = buildPeriodLabelFromSettings(lastSettings);
-            const { periodStart, periodEnd } =
-                buildPeriodRangeFromSettings(lastSettings);
-            const name = pickReportName(lastSettings);
-
-            const newReport: GeneratedReport = {
-                ...base,
-                name,
-                type: lastSettings.reportType,
-                periodLabel,
-                periodStart,
-                periodEnd,
-            };
-
-            const newSummary = buildSummaryFromReport(newReport);
-
-            reportRepository.addGeneratedReport(newReport, newSummary);
+            reportRepository.addGeneratedReport(report, summary);
 
             toast.success("Report generated", {
                 description: "Redirecting to Executive Summary…",
             });
 
             navigate(
-                `/preview/executive-summary?reportId=${encodeURIComponent(newId)}`
+                `/preview/executive-summary?reportId=${encodeURIComponent(report.id)}`
             );
         };
 
@@ -193,7 +124,7 @@ export default function GenerateLoadingPage() {
             cancelled = true;
             if (timer) window.clearTimeout(timer);
         };
-    }, [lastSettings, latest, navigate]);
+    }, [lastSettings, latest, navigate, reportRepository]);
 
     const progressPct = Math.round(((currentIdx + 1) / steps.length) * 100);
 

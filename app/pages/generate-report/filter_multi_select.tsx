@@ -19,12 +19,11 @@ function rowClass(active: boolean) {
 export default function FilterMultiSelect({
     title,
     options,
-    value,
+    value = [],
     onChange,
     placeholder = "Search…",
 }: Props) {
     const [q, setQ] = useState("");
-    const selected = value ?? [];
 
     const filtered = useMemo(() => {
         const query = q.trim().toLowerCase();
@@ -33,10 +32,8 @@ export default function FilterMultiSelect({
     }, [options, q]);
 
     function toggle(opt: string) {
-        const exists = selected.includes(opt);
-        onChange(
-            exists ? selected.filter((v) => v !== opt) : [...selected, opt]
-        );
+        const exists = value.includes(opt);
+        onChange(exists ? value.filter((v) => v !== opt) : [...value, opt]);
     }
 
     return (
@@ -46,7 +43,7 @@ export default function FilterMultiSelect({
                     {title}
                 </div>
                 <div className="text-xs text-gray-500">
-                    {selected.length} selected
+                    {value.length} selected
                 </div>
             </div>
 
@@ -72,7 +69,7 @@ export default function FilterMultiSelect({
 
             <div className="mt-2 max-h-[240px] overflow-auto rounded-md border border-gray-200 bg-white">
                 {filtered.map((opt) => {
-                    const checked = selected.includes(opt);
+                    const checked = value.includes(opt);
                     return (
                         <button
                             key={opt}

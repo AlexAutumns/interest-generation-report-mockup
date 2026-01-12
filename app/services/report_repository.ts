@@ -65,6 +65,16 @@ export const reportRepository = {
         return useReportsStore.getState().summaries;
     },
 
+    getLatestReport(): GeneratedReport {
+        const reports = useReportsStore.getState().reports;
+        if (!reports || reports.length === 0) {
+            throw new Error(
+                "No reports in store. Ensure reports_store is seeded."
+            );
+        }
+        return reports[0];
+    },
+
     getReportByIdSafe(reportId?: string): GeneratedReport | undefined {
         if (MODE === "api") {
             // later: fetch if missing; cache in store
