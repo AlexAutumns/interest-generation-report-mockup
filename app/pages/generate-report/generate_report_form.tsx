@@ -27,11 +27,10 @@ import {
     deriveFilterOptions,
     QUARTERS,
     type ExportFormat,
+    buildDefaultReportName,
 } from "./generate_report_helpers";
-import {
-    generateReportSchema,
-    type GenerateReportFormValues,
-} from "./generate_report_schema";
+import { generateReportSchema } from "./generate_report_schema";
+import type { GenerateReportFormValues } from "./generate_report_schema";
 
 function pillClass(active: boolean) {
     return active
@@ -57,35 +56,35 @@ export default function GenerateReportForm() {
 
     const { lastSettings, setLastSettings } = useGenerateReportStore();
 
+    const fallbackDefaults: GenerateReportFormValues = {
+        reportType: "weekly",
+        customName: "",
+        exports: ["pdf"],
+        scopeMode: "all",
+        applyFiltersTo: "both",
+        channels: [],
+        regions: [],
+        campaigns: [],
+        agents: [],
+        statuses: [],
+        includeAppendix: true,
+        includeCommentaryDraft: true,
+        year: defaultYear,
+        quarter: "Q1",
+        weekStart: "",
+        weekEnd: "",
+        month: "",
+    };
+
     const form = useForm<GenerateReportFormValues>({
         resolver: zodResolver(generateReportSchema),
-        defaultValues: lastSettings ?? {
-            reportType: "weekly",
-            exports: ["pdf"],
-            scopeMode: "all",
-            applyFiltersTo: "both",
-            channels: [],
-            regions: [],
-            campaigns: [],
-            agents: [],
-            statuses: [],
-            includeAppendix: true,
-            includeCommentaryDraft: true,
-            year: defaultYear,
-            quarter: "Q1",
-            // weekly/monthly fields empty by default:
-            weekStart: "",
-            weekEnd: "",
-            month: "",
-        },
+        defaultValues: lastSettings ?? fallbackDefaults,
         mode: "onSubmit",
     });
 
     const reportType = form.watch("reportType");
     const scopeMode = form.watch("scopeMode");
     const errors = form.formState.errors;
-
-    const latest = reportsTyped[0];
 
     function handleCopyLink() {
         const url = buildAbsoluteUrl("/generate");
@@ -165,6 +164,28 @@ export default function GenerateReportForm() {
     }
 
     const values = form.watch();
+
+    const customNameValue = form.watch("customName") ?? "";
+    const customNameCount = customNameValue.trim().length;
+    const customNameMax = 80;
+
+    const defaultNamePreview = useMemo(() => {
+        return buildDefaultReportName({
+            reportType: values.reportType,
+            weekStart: values.weekStart,
+            weekEnd: values.weekEnd,
+            month: values.month,
+            quarter: values.quarter,
+            year: values.year,
+        });
+    }, [
+        values.reportType,
+        values.weekStart,
+        values.weekEnd,
+        values.month,
+        values.quarter,
+        values.year,
+    ]);
 
     return (
         <form
@@ -287,7 +308,7 @@ export default function GenerateReportForm() {
 
                                 <div className="md:col-span-2 rounded-md border border-[#B3A125]/35 bg-[#B3A125]/10 px-3 py-2 text-xs text-[#193E6B]">
                                     Tip: Use a Monday–Sunday range for weekly
-                                    reporting (this will be enforced later).
+                                    reporting.
                                 </div>
                             </>
                         )}
@@ -359,6 +380,33 @@ export default function GenerateReportForm() {
                                 </div>
                             </>
                         )}
+                    </div>
+                    <div className="mt-4">
+                        <label className="text-sm font-semibold text-[#193E6B]">
+                            Report name (optional)
+                        </label>
+                        <input
+                            type="text"
+                            placeholder={defaultNamePreview}
+                            className="mt-1 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none"
+                            {...form.register("customName")}
+                        />
+                        <div className="mt-1 text-xs text-gray-500">
+                            Leave blank to use:{" "}
+                            <span className="font-semibold text-[#193E6B]">
+                                {defaultNamePreview}
+                            </span>
+                        </div>
+
+                        <div
+                            className={`mt-1 text-xs ${
+                                customNameCount > customNameMax
+                                    ? "text-rose-600"
+                                    : "text-gray-500"
+                            }`}
+                        >
+                            {customNameCount}/{customNameMax} characters
+                        </div>
                     </div>
                 </motion.div>
 

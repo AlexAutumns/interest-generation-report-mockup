@@ -14,6 +14,11 @@ import {
 import { useGenerateReportStore } from "../../state/generate_report_store";
 import { reportRepository, useReports } from "../../services/report_repository";
 import type { GeneratedReport, ReportSummary } from "../../types/reports";
+import {
+    buildPeriodLabelFromSettings,
+    buildPeriodRangeFromSettings,
+    pickReportName,
+} from "./generate_report_helpers";
 
 type StepKey = "compile" | "compute" | "render" | "publish";
 
@@ -153,7 +158,22 @@ export default function GenerateLoadingPage() {
 
             // MOCK generation: copy latest report and treat as newly generated.
             const newId = buildMockReportId();
-            const newReport = buildMockReportFromLatest(latest, newId);
+            const base = buildMockReportFromLatest(latest, newId);
+
+            const periodLabel = buildPeriodLabelFromSettings(lastSettings);
+            const { periodStart, periodEnd } =
+                buildPeriodRangeFromSettings(lastSettings);
+            const name = pickReportName(lastSettings);
+
+            const newReport: GeneratedReport = {
+                ...base,
+                name,
+                type: lastSettings.reportType,
+                periodLabel,
+                periodStart,
+                periodEnd,
+            };
+
             const newSummary = buildSummaryFromReport(newReport);
 
             reportRepository.addGeneratedReport(newReport, newSummary);

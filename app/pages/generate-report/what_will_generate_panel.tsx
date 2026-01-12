@@ -1,4 +1,5 @@
 import type { GenerateReportFormValues } from "./generate_report_schema";
+import { buildDefaultReportName } from "./generate_report_helpers";
 
 type Props = {
     values: GenerateReportFormValues;
@@ -65,6 +66,18 @@ function listOrAll(arr: string[], emptyLabel: string) {
 export default function WhatWillGeneratePanel({ values }: Props) {
     const periodLabel = buildPeriodLabel(values);
 
+    const defaultNamePreview = buildDefaultReportName(values);
+
+    const effectiveName =
+        values.customName && values.customName.trim().length > 0
+            ? values.customName.trim()
+            : defaultNamePreview;
+
+    const nameSourceLabel =
+        values.customName && values.customName.trim().length > 0
+            ? "Custom name"
+            : "Default name";
+
     const exportsLabel = values.exports?.length
         ? values.exports.map((x) => x.toUpperCase()).join(" + ")
         : "—";
@@ -96,14 +109,18 @@ export default function WhatWillGeneratePanel({ values }: Props) {
                     <div className="mt-1 text-sm font-semibold text-[#193E6B]">
                         {readableReportType(values.reportType)} • {periodLabel}
                     </div>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                        <span className={pill("In-app JSON report (always)")}>
-                            In-app JSON report (always)
-                        </span>
-                        <span
-                            className={pill(`Exports: ${exportsLabel}`)}
-                        >{`Exports: ${exportsLabel}`}</span>
+
+                    <div className="mt-2 rounded-md border border-gray-200 bg-white px-3 py-2">
+                        <div className="text-xs text-gray-500">Report name</div>
+                        <div className="mt-0.5 text-sm font-semibold text-[#193E6B]">
+                            {effectiveName}
+                        </div>
+                        <div className="mt-0.5 text-[11px] text-gray-500">
+                            {nameSourceLabel}
+                        </div>
                     </div>
+
+                    <div className="mt-2 flex flex-wrap gap-2">...</div>
                 </div>
 
                 {/* Scope */}

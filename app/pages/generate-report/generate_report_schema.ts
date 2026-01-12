@@ -8,9 +8,13 @@ import {
 
 export const generateReportSchema = z
     .object({
-        reportType: z.enum(REPORT_TYPES, {
-            required_error: "Select a report type.",
-        }),
+        reportType: z.enum(REPORT_TYPES),
+
+        customName: z
+            .string()
+            .max(80, "Report name must be 80 characters or less.")
+            .optional()
+            .or(z.literal("")),
 
         // Period selection
         weekStart: z.string().optional(),
