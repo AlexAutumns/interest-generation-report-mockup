@@ -88,28 +88,42 @@ export function buildAgingDistribution(report: GeneratedReport): AgingRow[] {
     return rows;
 }
 
-export function buildSlaStats(report: GeneratedReport) {
-    const policy = buildSlaPolicy();
+// interest_aging_sla_helpers.ts
+export function buildSlaStats(
+    report: GeneratedReport,
+    policy?: Partial<SlaPolicy> & { followUpDuePct?: number } // optional input only
+) {
+    const slaHoursTarget = policy?.slaHoursTarget ?? 24;
+
+    // calculation-only input (NOT part of SlaPolicy)
+    const followUpDuePct = policy?.followUpDuePct ?? 1.0; // default: 100%
 
     const totalLeads = safeNumber(report.executiveSummary?.totalLeads);
+
+    // This is a COUNT across leads, so the denominator should be the same “population” or you’ll easily get 0% all the time.
     const slaBreachCount = safeNumber(report.kpis?.slaBreachCount);
 
-    // Mock: estimate "follow-ups due" as a fraction of total leads
-    const followUpsDue = Math.max(1, Math.round(totalLeads * 0.35));
-    const slaCompliant = Math.max(0, followUpsDue - slaBreachCount);
-    const complianceRate = pct(slaCompliant, followUpsDue);
+    // If you still want the “due %” concept, keep it — but default it to 100% (1.0) so breaches are comparable.
+    const followUpsDue = Math.max(0, Math.round(totalLeads * followUpDuePct));
 
-    // Mock: avg follow-up time from executive summary (already exists)
+    const slaCompliant = Math.max(0, followUpsDue - slaBreachCount);
+
+    const complianceRate =
+        followUpsDue > 0 ? Math.round((slaCompliant / followUpsDue) * 100) : 0;
+
     const avgFollowUpTime = safeNumber(
         report.executiveSummary?.avgFollowUpTime
     );
 
     return {
-        policy,
+        policy: { slaHoursTarget },
         followUpsDue,
         slaBreachCount,
         slaCompliant,
         complianceRate,
         avgFollowUpTime,
+
+        // optional (won’t break anything if unused)
+        totalLeads,
     };
 }
