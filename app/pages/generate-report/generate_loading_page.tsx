@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -12,8 +12,8 @@ import {
 } from "lucide-react";
 
 import { useGenerateReportStore } from "../../state/generate_report_store";
-import { reportRepository, useReports } from "../../services/report_repository";
-import { generateMockReportFromSettings } from "../../services/mock_report_generator";
+import { reportRepository } from "../../services/report_repository";
+import { generateReportFromSettings } from "../../services/report_generator";
 
 type StepKey = "compile" | "compute" | "render" | "publish";
 
@@ -31,10 +31,9 @@ function cardClass() {
 
 export default function GenerateLoadingPage() {
     const navigate = useNavigate();
+    const hasRunRef = useRef(false);
 
     const { lastSettings } = useGenerateReportStore();
-    const reports = useReports();
-    const latest = useMemo(() => reports?.[0], [reports]);
 
     const steps: Step[] = [
         {
@@ -73,7 +72,11 @@ export default function GenerateLoadingPage() {
     const [currentIdx, setCurrentIdx] = useState(0);
 
     useEffect(() => {
-        // If user lands here without settings, push them back.
+        console.log("GenerateLoadingPage: pipeline started");
+
+        if (hasRunRef.current) return;
+        hasRunRef.current = true;
+
         if (!lastSettings) {
             toast.info("No report settings found", {
                 description: "Please configure the report first.",
@@ -82,40 +85,45 @@ export default function GenerateLoadingPage() {
             return;
         }
 
-        if (!latest) {
-            toast.error("No base report found", {
-                description: "Seed data is missing.",
-            });
-            navigate("/");
-            return;
-        }
-
         let cancelled = false;
         let timer: number | undefined;
 
         const run = async () => {
-            for (let i = 0; i < steps.length; i++) {
+            try {
+                for (let i = 0; i < steps.length; i++) {
+                    if (cancelled) return;
+                    setCurrentIdx(i);
+                    await new Promise<void>((res) => {
+                        timer = window.setTimeout(() => res(), steps[i].ms);
+                    });
+                }
+
                 if (cancelled) return;
-                setCurrentIdx(i);
-                await new Promise((res) => {
-                    timer = window.setTimeout(res, steps[i].ms);
+
+                const { report, summary } =
+                    await generateReportFromSettings(lastSettings);
+
+                if (cancelled) return;
+
+                reportRepository.addGeneratedReport(report, summary);
+
+                toast.success("Report generated", {
+                    description: "Redirecting to Executive Summary…",
                 });
+
+                navigate(
+                    `/preview/executive-summary?reportId=${encodeURIComponent(report.id)}`
+                );
+            } catch (err) {
+                console.error(err);
+                toast.error("Generation failed", {
+                    description:
+                        err instanceof Error
+                            ? err.message
+                            : "Unknown error occurred.",
+                });
+                navigate("/generate");
             }
-
-            if (cancelled) return;
-
-            const { report, summary } =
-                generateMockReportFromSettings(lastSettings);
-
-            reportRepository.addGeneratedReport(report, summary);
-
-            toast.success("Report generated", {
-                description: "Redirecting to Executive Summary…",
-            });
-
-            navigate(
-                `/preview/executive-summary?reportId=${encodeURIComponent(report.id)}`
-            );
         };
 
         run();
@@ -123,8 +131,9 @@ export default function GenerateLoadingPage() {
         return () => {
             cancelled = true;
             if (timer) window.clearTimeout(timer);
+            hasRunRef.current = false; // ✅ important for dev StrictMode
         };
-    }, [lastSettings, latest, navigate]);
+    }, [lastSettings, navigate]);
 
     const progressPct = Math.round(((currentIdx + 1) / steps.length) * 100);
 
