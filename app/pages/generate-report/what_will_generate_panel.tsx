@@ -44,7 +44,7 @@ function pill(text: string) {
     return "inline-flex items-center rounded-full bg-[#193E6B]/5 px-2 py-1 text-xs font-semibold text-[#193E6B] ring-1 ring-[#193E6B]/10";
 }
 
-function listOrAll(arr: string[], emptyLabel: string) {
+function listOrAll(arr: string[] | undefined, emptyLabel: string) {
     if (!arr || arr.length === 0)
         return <span className="text-gray-600">{emptyLabel}</span>;
     return (

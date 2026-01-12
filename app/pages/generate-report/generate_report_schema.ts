@@ -94,4 +94,8 @@ export const generateReportSchema = z
         // but we still show UI settings. No extra validation needed.
     });
 
-export type GenerateReportFormValues = z.infer<typeof generateReportSchema>;
+// RHF + zodResolver expects the INPUT shape (defaults make fields optional on input)
+export type GenerateReportFormValues = z.input<typeof generateReportSchema>;
+
+// Optional: “fully realized” type after parsing (defaults applied)
+export type GenerateReportParsedValues = z.output<typeof generateReportSchema>;

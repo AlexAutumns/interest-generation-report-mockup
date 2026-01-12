@@ -16,8 +16,7 @@ import {
     Wand2,
 } from "lucide-react";
 
-import type { GeneratedReport } from "../../types/reports";
-import { generatedReports } from "../../data/mockReportsFull";
+import { useReports } from "../../services/report_repository";
 
 import FilterMultiSelect from "./filter_multi_select";
 import { useGenerateReportStore } from "../../state/generate_report_store";
@@ -45,11 +44,10 @@ function cardClass() {
 export default function GenerateReportForm() {
     const navigate = useNavigate();
 
-    const reportsTyped =
-        (generatedReports as unknown as GeneratedReport[]) ?? [];
+    const reports = useReports();
     const options = useMemo(
-        () => deriveFilterOptions(reportsTyped),
-        [reportsTyped]
+        () => deriveFilterOptions(reports ?? []),
+        [reports]
     );
 
     const defaultYear = useMemo(() => new Date().getFullYear(), []);
