@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -31,7 +31,6 @@ function cardClass() {
 
 export default function GenerateLoadingPage() {
     const navigate = useNavigate();
-    const hasRunRef = useRef(false);
 
     const { lastSettings } = useGenerateReportStore();
 
@@ -72,11 +71,6 @@ export default function GenerateLoadingPage() {
     const [currentIdx, setCurrentIdx] = useState(0);
 
     useEffect(() => {
-        console.log("GenerateLoadingPage: pipeline started");
-
-        if (hasRunRef.current) return;
-        hasRunRef.current = true;
-
         if (!lastSettings) {
             toast.info("No report settings found", {
                 description: "Please configure the report first.",
@@ -94,14 +88,16 @@ export default function GenerateLoadingPage() {
                     if (cancelled) return;
                     setCurrentIdx(i);
                     await new Promise<void>((res) => {
-                        timer = window.setTimeout(() => res(), steps[i].ms);
+                        timer = window.setTimeout(res, steps[i].ms);
                     });
                 }
 
                 if (cancelled) return;
 
+                console.log("GenerateLoadingPage: calling generator...");
                 const { report, summary } =
                     await generateReportFromSettings(lastSettings);
+                console.log("GenerateLoadingPage: generator done", report.id);
 
                 if (cancelled) return;
 
@@ -131,7 +127,6 @@ export default function GenerateLoadingPage() {
         return () => {
             cancelled = true;
             if (timer) window.clearTimeout(timer);
-            hasRunRef.current = false; // ✅ important for dev StrictMode
         };
     }, [lastSettings, navigate]);
 

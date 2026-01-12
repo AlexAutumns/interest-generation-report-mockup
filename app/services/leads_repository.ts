@@ -76,7 +76,7 @@ function parseCsv(text: string): LeadRow[] {
         const row = parseCsvLine(lines[r]);
 
         // If row is malformed, skip
-        if (row.length < header.length / 2) continue;
+        if (row.length < header.length) continue;
 
         const createdAt = get(row, "createdAt") || get(row, "createdDate"); // CSV uses createdDate
         if (!createdAt) continue;
@@ -88,11 +88,13 @@ function parseCsv(text: string): LeadRow[] {
             get(row, "firstEngagementDate") ||
             undefined;
 
+        const conversion = toNum(get(row, "conversion"));
         const resolvedAt =
-            get(row, "resolvedAt") ||
-            get(row, "conversionDate") ||
-            get(row, "lastEngagementDate") ||
-            undefined;
+            conversion === 1
+                ? get(row, "conversionDate") ||
+                  get(row, "resolvedAt") ||
+                  undefined
+                : get(row, "lastEngagementDate") || undefined;
 
         const revenueUsd = toNum(get(row, "revenueUsd") || get(row, "revenue"));
         const costUsd = toNum(get(row, "costUsd") || get(row, "sourceCost"));
