@@ -35,6 +35,145 @@ function avg(nums: number[]): number {
     return sum(nums) / nums.length;
 }
 
+function isFiniteNumber(n: unknown): n is number {
+    return typeof n === "number" && Number.isFinite(n);
+}
+
+function shouldRunSanityChecks(): boolean {
+    // Goal: dev-only by default, but still works in different runtimes.
+    // - Vite: import.meta.env.DEV
+    // - Node-like: process.env.NODE_ENV !== "production"
+    //
+    // These checks are NON-BLOCKING: they only warn to console.
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const viteDev = (import.meta as any)?.env?.DEV;
+        if (viteDev === true) return true;
+        if (viteDev === false) return false;
+    } catch {
+        // ignore
+    }
+
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const nodeEnv = (process as any)?.env?.NODE_ENV;
+        return nodeEnv !== "production";
+    } catch {
+        // If we can't detect env, default to running (safe; still non-blocking).
+        return true;
+    }
+}
+
+function runReportSanityChecks(report: GeneratedReport): void {
+    if (!shouldRunSanityChecks()) return;
+
+    const warnings: string[] = [];
+    const f = report.funnel;
+
+    const total = report.executiveSummary.totalLeads;
+    const convertedSummary = report.executiveSummary.convertedLeads;
+
+    // 1) Total consistency: funnel.new must match executiveSummary.totalLeads
+    if (isFiniteNumber(f.new) && isFiniteNumber(total) && f.new !== total) {
+        warnings.push(
+            `Total mismatch: funnel.new (${f.new}) != executiveSummary.totalLeads (${total}).`
+        );
+    }
+
+    // 2) Converted consistency: funnel.converted should match executiveSummary.convertedLeads
+    if (
+        isFiniteNumber(f.converted) &&
+        isFiniteNumber(convertedSummary) &&
+        f.converted !== convertedSummary
+    ) {
+        warnings.push(
+            `Converted mismatch: funnel.converted (${f.converted}) != executiveSummary.convertedLeads (${convertedSummary}).`
+        );
+    }
+
+    // 3) Monotonic funnel: Captured >= Contacted >= Engaged >= Qualified >= Converted
+    // Contacted is optional, so only check it if present.
+    const stages: Array<{ key: string; value: number }> = [
+        { key: "captured", value: f.new },
+        ...(isFiniteNumber(f.contacted)
+            ? [{ key: "contacted", value: f.contacted }]
+            : []),
+        { key: "engaged", value: f.engaged },
+        { key: "qualified", value: f.qualified },
+        { key: "converted", value: f.converted },
+    ];
+
+    for (let i = 0; i < stages.length - 1; i++) {
+        const a = stages[i];
+        const b = stages[i + 1];
+        if (!isFiniteNumber(a.value) || !isFiniteNumber(b.value)) continue;
+
+        if (a.value < b.value) {
+            warnings.push(
+                `Funnel monotonicity violated: ${a.key} (${a.value}) < ${b.key} (${b.value}).`
+            );
+        }
+    }
+
+    // 4) Lead score bins should sum to total leads (if present)
+    if (
+        Array.isArray(report.leadScoreBins) &&
+        report.leadScoreBins.length > 0
+    ) {
+        const binsTotal = report.leadScoreBins.reduce(
+            (s, b) => s + (isFiniteNumber(b.count) ? b.count : 0),
+            0
+        );
+
+        if (isFiniteNumber(total) && binsTotal !== total) {
+            warnings.push(
+                `Lead score bins mismatch: sum(bins) (${binsTotal}) != totalLeads (${total}).`
+            );
+        }
+    }
+
+    // 5) Group tables should sum to total leads (helps catch missing rows due to grouping keys)
+    const sumLeads = <T extends { leads: number }>(rows: T[]) =>
+        rows.reduce((s, r) => s + (isFiniteNumber(r.leads) ? r.leads : 0), 0);
+
+    const channelsTotal = sumLeads(report.channels ?? []);
+    if (isFiniteNumber(total) && channelsTotal !== total) {
+        warnings.push(
+            `Channels sum mismatch: sum(channels.leads) (${channelsTotal}) != totalLeads (${total}).`
+        );
+    }
+
+    const campaignsTotal = sumLeads(report.campaigns ?? []);
+    if (isFiniteNumber(total) && campaignsTotal !== total) {
+        warnings.push(
+            `Campaigns sum mismatch: sum(campaigns.leads) (${campaignsTotal}) != totalLeads (${total}).`
+        );
+    }
+
+    const regionsTotal = sumLeads(report.regions ?? []);
+    if (isFiniteNumber(total) && regionsTotal !== total) {
+        warnings.push(
+            `Regions sum mismatch: sum(regions.leads) (${regionsTotal}) != totalLeads (${total}).`
+        );
+    }
+
+    const agentsTotal = sumLeads(report.agents ?? []);
+    if (isFiniteNumber(total) && agentsTotal !== total) {
+        warnings.push(
+            `Agents sum mismatch: sum(agents.leads) (${agentsTotal}) != totalLeads (${total}).`
+        );
+    }
+
+    // If anything looks off, warn once with context.
+    if (warnings.length > 0) {
+        // Keep it readable: one warning + list of issues.
+        console.warn(
+            `[ReportGenerator] Sanity check warnings for ${report.id} (${report.periodLabel}):`,
+            warnings
+        );
+    }
+}
+
 function buildLeadScoreBins(
     scores: Array<number | null | undefined>
 ): LeadScoreBin[] {
@@ -105,20 +244,47 @@ function isoDateOnly(d: Date): string {
     return `${yyyy}-${mm}-${dd}`;
 }
 
-function parseDateOnly(iso: string): Date {
-    // Interpret YYYY-MM-DD safely
-    return new Date(`${iso}T00:00:00`);
+function parseDateOnly(input: string | undefined | null): Date | null {
+    // Accept both:
+    // 1) Date-only strings from CSV: "YYYY-MM-DD"
+    // 2) Full ISO timestamps from APIs: "YYYY-MM-DDTHH:mm:ssZ" / "+08:00", etc.
+    //
+    // Why: the mock data is date-only today, but production sources often include timezones.
+    // Returning null on invalid inputs avoids silently producing "Invalid Date" math.
+    const raw = (input ?? "").trim();
+    if (!raw) return null;
+
+    // Date-only format: treat as local midnight to keep reporting stable by local day.
+    // (Using "T00:00:00" without a timezone keeps it in local time.)
+    const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(raw);
+    if (isDateOnly) {
+        const d = new Date(`${raw}T00:00:00`);
+        return Number.isNaN(d.getTime()) ? null : d;
+    }
+
+    // Otherwise, attempt normal Date parsing for ISO timestamps.
+    const d = new Date(raw);
+    return Number.isNaN(d.getTime()) ? null : d;
 }
 
 function isBetweenInclusive(
-    dateIso: string,
+    dateIso: string | undefined,
     startIso: string,
     endIso: string
 ): boolean {
-    const t = parseDateOnly(dateIso).getTime();
-    const a = parseDateOnly(startIso).getTime();
-    const b = parseDateOnly(endIso).getTime();
-    return t >= a && t <= b;
+    const t = parseDateOnly(dateIso);
+    const a = parseDateOnly(startIso);
+    const b = parseDateOnly(endIso);
+
+    // If any date is invalid/missing, we treat it as not in range.
+    // This avoids crashes and prevents "Invalid Date" math from skewing totals.
+    if (!t || !a || !b) return false;
+
+    const tt = t.getTime();
+    const aa = a.getTime();
+    const bb = b.getTime();
+
+    return tt >= aa && tt <= bb;
 }
 
 function getIsoWeekNumber(d: Date): number {
@@ -142,8 +308,12 @@ function buildPeriodRangeFromSettings(s: GenerateReportFormValues): {
         const start = (s.weekStart ?? "").trim() || isoDateOnly(new Date());
         const end = (s.weekEnd ?? "").trim() || start;
 
-        const wk = getIsoWeekNumber(parseDateOnly(start));
-        const yy = parseDateOnly(start).getFullYear();
+        const startDate = parseDateOnly(start) ?? new Date();
+
+        // If weekStart is invalid, we fall back to "today" to avoid crashing.
+        // (This should be rare because the UI should supply a valid YYYY-MM-DD.)
+        const wk = getIsoWeekNumber(startDate);
+        const yy = startDate.getFullYear();
 
         return {
             type: "weekly",
@@ -244,16 +414,35 @@ function applyPreviewFilters(
     const regions = settings.regions ?? [];
     const campaigns = settings.campaigns ?? [];
 
-    const match = (v: string, arr: string[]) =>
-        arr.length === 0 ? true : arr.includes(v);
+    // Normalize filter comparisons to avoid silent mismatches due to
+    // casing or extra spaces (e.g., "Facebook" vs "facebook", "Yangon " vs "Yangon").
+    //
+    // This is important because report totals can look "wrong" simply because
+    // the filter values don't exactly match the raw CSV strings.
+    const norm = (s: string | undefined | null) =>
+        (s ?? "").trim().toLowerCase();
+
+    const toSet = (arr: string[]) => {
+        // Keep only non-empty normalized values
+        return new Set(arr.map(norm).filter(Boolean));
+    };
+
+    const agentSet = toSet(agents);
+    const statusSet = toSet(statuses);
+    const channelSet = toSet(channels);
+    const regionSet = toSet(regions);
+    const campaignSet = toSet(campaigns);
+
+    const match = (v: string | undefined, set: Set<string>) =>
+        set.size === 0 ? true : set.has(norm(v));
 
     return leads.filter((l) => {
         return (
-            match(l.agent, agents) &&
-            match(l.status, statuses) &&
-            match(l.channel, channels) &&
-            match(l.region, regions) &&
-            match(l.campaign, campaigns)
+            match(l.agent, agentSet) &&
+            match(l.status, statusSet) &&
+            match(l.channel, channelSet) &&
+            match(l.region, regionSet) &&
+            match(l.campaign, campaignSet)
         );
     });
 }
@@ -374,9 +563,38 @@ export function generateReportFromLeads(
     // If your org later defines funnel stages differently (e.g., Contacted derived from activity logs),
     // we can swap these formulas without breaking the report shape.
     const funnelCaptured = totalLeads;
-    const funnelConvertedStage = statusConverted; // keep funnel stage consistent with status for now
-    const funnelQualifiedStage = statusQualified + funnelConvertedStage;
-    const funnelEngagedStage = statusEngaged + funnelQualifiedStage;
+
+    // Funnel stages must NOT double-count.
+    // We also want funnel.converted to match executiveSummary.convertedLeads.
+    //
+    // Instead of summing buckets (Qualified + Converted), we compute each stage using
+    // lead-level rules so "conversion=1 but status != Converted" is still counted.
+    //
+    // Stage meaning in this mock:
+    // - Converted: isConvertedLead (conversion flag OR converted status)
+    // - Qualified: status Qualified OR Converted
+    // - Engaged: status Engaged OR Qualified OR Converted
+    let funnelConvertedStage = 0;
+    let funnelQualifiedStage = 0;
+    let funnelEngagedStage = 0;
+
+    for (let i = 0; i < scoped.length; i++) {
+        const lead = scoped[i];
+        const st = statusBuckets[i]; // normalized status for this lead
+
+        // Same conversion rule as executive summary:
+        // a lead is "converted" if conversion > 0 OR status is Converted/Won.
+        const converted = (lead.conversion ?? 0) > 0 || st === "Converted";
+
+        if (converted) funnelConvertedStage++;
+
+        // Qualified includes leads explicitly qualified *or* already converted.
+        if (st === "Qualified" || converted) funnelQualifiedStage++;
+
+        // Engaged includes Engaged/Qualified/Converted.
+        if (st === "Engaged" || st === "Qualified" || converted)
+            funnelEngagedStage++;
+    }
 
     // Contacted stage (stored in report so UI doesn't have to "guess").
     //
@@ -555,6 +773,10 @@ export function generateReportFromLeads(
         regions,
         agents,
     };
+
+    // Non-blocking validation to catch silent math drift during development.
+    // This should never throw; it only warns in console when something is inconsistent.
+    runReportSanityChecks(report);
 
     const summary = buildSummaryFromReport(report);
 
