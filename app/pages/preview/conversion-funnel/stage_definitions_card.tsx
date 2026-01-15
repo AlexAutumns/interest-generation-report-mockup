@@ -12,8 +12,9 @@ export default function StageDefinitionsCard() {
                         </div>
                     </div>
                     <p className="mt-1 text-sm text-gray-600">
-                        Prototype definitions for the engagement journey. We’ll
-                        align these with SOP later.
+                        Prototype definitions aligned to the current mock report
+                        logic. We’ll refine these with SOP + event tracking
+                        later.
                     </p>
                 </div>
 
@@ -26,7 +27,9 @@ export default function StageDefinitionsCard() {
                             </span>
                         </div>
                         <div className="mt-1">
-                            Lead created/ingested into the pipeline.
+                            All leads included in this report period (after
+                            report filters). This is the total pipeline entry
+                            count.
                         </div>
                     </div>
 
@@ -38,8 +41,11 @@ export default function StageDefinitionsCard() {
                             </span>
                         </div>
                         <div className="mt-1">
-                            Initial outreach attempted (email/call/message).
+                            Outreach initiated. In this mockup, the contacted
+                            count is estimated from follow-up speed (or read
+                            directly from the generated report if available).
                         </div>
+                        {/* NOTE: This clarifies why Contacted can’t be perfectly “true” yet without activity logs. */}
                     </div>
 
                     <div className="rounded-lg bg-[#F5F5F5] p-3 text-gray-700 ring-1 ring-gray-200">
@@ -50,9 +56,12 @@ export default function StageDefinitionsCard() {
                             </span>
                         </div>
                         <div className="mt-1">
-                            Meaningful interaction happened (reply/click/meeting
-                            booked).
+                            Lead progressed beyond initial state. In the mock
+                            logic, this is treated as leads in status{" "}
+                            <span className="font-semibold">Engaged</span> or
+                            later (Engaged + Qualified + Converted).
                         </div>
+                        {/* Engaged is cumulative in the funnel (monotonic), not just "Engaged status count". */}
                     </div>
 
                     <div className="rounded-lg bg-[#F5F5F5] p-3 text-gray-700 ring-1 ring-gray-200">
@@ -63,8 +72,10 @@ export default function StageDefinitionsCard() {
                             </span>
                         </div>
                         <div className="mt-1">
-                            Meets criteria/intent threshold (e.g., score band,
-                            fit, readiness).
+                            Meets readiness/fit threshold. In the mock logic,
+                            this is leads in status{" "}
+                            <span className="font-semibold">Qualified</span> or
+                            later (Qualified + Converted).
                         </div>
                     </div>
 
@@ -77,14 +88,19 @@ export default function StageDefinitionsCard() {
                         </div>
                         <div className="mt-1">
                             Successfully converted (won / advanced to
-                            opportunity).
+                            opportunity). In the mock logic, this matches{" "}
+                            <span className="font-semibold">Converted</span>{" "}
+                            status (and aligns with executive summary conversion
+                            totals).
                         </div>
                     </div>
                 </div>
 
                 <div className="mt-4 rounded-lg border border-[#B3A125]/25 bg-[#B3A125]/10 p-3 text-xs text-[#193E6B]">
-                    Note: These labels are for mockup clarity — final stage
-                    logic will be derived from real engagement events.
+                    Note: “Lost” is tracked separately (not part of the main
+                    monotonic funnel). Final stage logic should be derived from
+                    real engagement events (calls/emails/replies/meetings) once
+                    those data sources are available.
                 </div>
             </div>
         </div>

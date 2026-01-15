@@ -30,7 +30,13 @@ export default function LeadScorePanel({ scoreBins, summary }: Props) {
         .filter((b) => b.max <= 40) // 0–40
         .reduce((a, b) => a + b.count, 0);
 
-    const total = summary.totalLeads || 1;
+    // Use the bins as the primary source of truth for totals.
+    // This avoids % mismatches if summary.totalLeads differs from the distribution base
+    // (e.g., older reports without leadScoreBins, or any future changes in how totals are computed).
+    const totalFromBins = scoreBins.reduce((sum, b) => sum + b.count, 0);
+
+    // Fallback to summary.totalLeads, and finally to 1 to avoid division-by-zero.
+    const total = totalFromBins > 0 ? totalFromBins : summary.totalLeads || 1;
 
     const highIntentPct = (highIntent / total) * 100;
     const lowIntentPct = (lowIntent / total) * 100;
