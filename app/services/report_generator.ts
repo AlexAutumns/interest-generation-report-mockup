@@ -10,6 +10,7 @@ import type {
     RegionPerformanceRow,
     AgentPerformanceRow,
     LostReasonRow,
+    LeadScoreBin,
 } from "../types/reports";
 
 import type { LeadRow } from "../types/leads";
@@ -32,6 +33,38 @@ function sum(nums: number[]): number {
 function avg(nums: number[]): number {
     if (!nums.length) return 0;
     return sum(nums) / nums.length;
+}
+
+function buildLeadScoreBins(
+    scores: Array<number | null | undefined>
+): LeadScoreBin[] {
+    // We clamp scores to 0–100 because leadScore can be missing or out of range in mock data.
+    const cleaned = scores
+        .map((s) => (typeof s === "number" && Number.isFinite(s) ? s : 0))
+        .map((s) => Math.max(0, Math.min(100, Math.round(s))));
+
+    const total = cleaned.length || 1;
+
+    const bins: Array<{ label: string; min: number; max: number }> = [
+        { label: "0–20", min: 0, max: 20 },
+        { label: "21–40", min: 21, max: 40 },
+        { label: "41–60", min: 41, max: 60 },
+        { label: "61–80", min: 61, max: 80 },
+        { label: "81–100", min: 81, max: 100 },
+    ];
+
+    const counts = bins.map((b) => {
+        const c = cleaned.filter((v) => v >= b.min && v <= b.max).length;
+        return c;
+    });
+
+    return bins.map((b, i) => ({
+        label: b.label,
+        min: b.min,
+        max: b.max,
+        count: counts[i],
+        percent: pct(counts[i], total),
+    }));
 }
 
 function buildReportId(): string {
@@ -296,28 +329,78 @@ export function generateReportFromLeads(
     const conversionRate = pct(convertedLeads, totalLeads);
 
     const avgLeadScore = avg(scoped.map((l) => l.leadScore ?? 0));
+    // Real score distribution from the same scoped dataset used for the report.
+    const leadScoreBins = buildLeadScoreBins(scoped.map((l) => l.leadScore));
     const avgFollowUpTime = avg(scoped.map((l) => l.avgFollowUpTime ?? 0));
 
     const topChannel = topKeyByCount(scoped.map((l) => l.channel));
     const topRegion = topKeyByCount(scoped.map((l) => l.region));
 
-    // Funnel buckets
+    // Funnel + KPI buckets
+    //
+    // NOTE ON SEMANTICS (important for the UI):
+    // - KPI counts are "status buckets" (how many leads are currently New/Engaged/etc.)
+    // - Funnel counts are "cumulative stages" (Captured >= Engaged >= Qualified >= Converted)
+    //
+    // This avoids the earlier bug where funnel.new was treated like total leads
+    // but the generator only stored "New status count" there.
     const statusBuckets = scoped.map((l) => normalizeStatus(l.status));
-    const funnelNew = statusBuckets.filter((s) => s === "New").length;
-    const funnelEngaged = statusBuckets.filter((s) => s === "Engaged").length;
-    const funnelQualified = statusBuckets.filter(
+
+    // Status buckets (used by the KPI section)
+    const statusNew = statusBuckets.filter((s) => s === "New").length;
+    const statusEngaged = statusBuckets.filter((s) => s === "Engaged").length;
+    const statusQualified = statusBuckets.filter(
         (s) => s === "Qualified"
     ).length;
-    const funnelConverted = statusBuckets.filter(
+    const statusConverted = statusBuckets.filter(
         (s) => s === "Converted"
     ).length;
-    const funnelLost = statusBuckets.filter((s) => s === "Lost").length;
+    const statusLost = statusBuckets.filter((s) => s === "Lost").length;
 
-    // KPIs section expects these exact keys
-    const newLeads = funnelNew;
-    const engagedLeads = funnelEngaged;
-    const qualifiedLeads = funnelQualified;
-    const lostLeads = funnelLost;
+    // KPIs section expects these exact keys (bucket counts)
+    const newLeads = statusNew;
+    const engagedLeads = statusEngaged;
+    const qualifiedLeads = statusQualified;
+    const lostLeads = statusLost;
+
+    // Funnel cumulative stages:
+    // Captured is ALWAYS the total leads in the selected period (after filters).
+    //
+    // For the other stages, we interpret status as a stage progression:
+    // Engaged-or-above = Engaged + Qualified + Converted
+    // Qualified-or-above = Qualified + Converted
+    // Converted = Converted
+    //
+    // If your org later defines funnel stages differently (e.g., Contacted derived from activity logs),
+    // we can swap these formulas without breaking the report shape.
+    const funnelCaptured = totalLeads;
+    const funnelConvertedStage = statusConverted; // keep funnel stage consistent with status for now
+    const funnelQualifiedStage = statusQualified + funnelConvertedStage;
+    const funnelEngagedStage = statusEngaged + funnelQualifiedStage;
+
+    // Contacted stage (stored in report so UI doesn't have to "guess").
+    //
+    // For now, we use a simple heuristic based on average follow-up speed:
+    // - faster follow-up generally means more leads get contacted early.
+    // This is still a mockup approximation until we have real engagement events.
+    //
+    // IMPORTANT: contacted must never be below Engaged (monotonic funnel).
+    const contactedBase =
+        avgFollowUpTime <= 24 ? 0.82 : avgFollowUpTime <= 48 ? 0.76 : 0.68;
+
+    // Estimated contacted count based on follow-up speed
+    let funnelContacted = Math.round(funnelCaptured * contactedBase);
+
+    // Clamp within 0..captured
+    funnelContacted = Math.max(0, Math.min(funnelCaptured, funnelContacted));
+
+    // Ensure monotonic: Contacted should be at least Engaged
+    if (funnelContacted < funnelEngagedStage) {
+        funnelContacted = funnelEngagedStage;
+    }
+
+    // Lost is tracked separately (not part of the main monotonic funnel path)
+    const funnelLost = statusLost;
 
     const slaBreachCount = scoped.filter(
         (l) => (l.slaBreached ?? 0) > 0
@@ -428,6 +511,8 @@ export function generateReportFromLeads(
         generatedBy,
         status,
 
+        leadScoreBins,
+
         executiveSummary: {
             totalLeads,
             convertedLeads,
@@ -452,10 +537,18 @@ export function generateReportFromLeads(
 
         campaigns,
         funnel: {
-            new: funnelNew,
-            engaged: funnelEngaged,
-            qualified: funnelQualified,
-            converted: funnelConverted,
+            // "new" == Captured (total leads)
+            new: funnelCaptured,
+
+            // Now stored in report JSON (preferred by the UI)
+            contacted: funnelContacted,
+
+            // Cumulative stages
+            engaged: funnelEngagedStage,
+            qualified: funnelQualifiedStage,
+            converted: funnelConvertedStage,
+
+            // Extra info
             lost: funnelLost,
         },
 

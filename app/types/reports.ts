@@ -82,6 +82,16 @@ export type AgentPerformanceRow = {
     avgLeadScore: number;
 };
 
+// Lead score distribution bin stored in generated report JSON.
+// Kept inside reports.ts to avoid coupling the page model types to report types.
+export type LeadScoreBin = {
+    label: string; // e.g. "0–20"
+    min: number; // inclusive lower bound
+    max: number; // inclusive upper bound
+    count: number; // number of leads in this band
+    percent: number; // percent of total leads (0–100)
+};
+
 export type GeneratedReport = {
     id: string;
     name: string;
@@ -125,11 +135,19 @@ export type GeneratedReport = {
 
     funnel: {
         new: number;
+
+        // Optional for backwards compatibility:
+        // older mock reports / older generated reports may not have this yet.
+        contacted?: number;
+
         engaged: number;
         qualified: number;
         converted: number;
         lost: number;
     };
+
+    // Optional: if present, Conversion & Funnel can show real score distribution
+    leadScoreBins?: LeadScoreBin[];
 
     regions?: RegionPerformanceRow[];
     agents?: AgentPerformanceRow[];

@@ -49,17 +49,66 @@ function stageLabel(key: FunnelStageKey) {
 }
 
 export function buildConversionFunnelModel(report: any): ConversionFunnelModel {
-    // Prefer funnel counts (Option B). Fallback safely if missing.
-    const capturedLeads = safeNumber(
-        report?.funnel?.new,
-        safeNumber(report?.executiveSummary?.totalLeads)
+    // Captured should represent *all* leads in the report period.
+    //
+    // IMPORTANT:
+    // We support 2 shapes of report.funnel data:
+    // 1) Legacy mock reports: funnel.* are already cumulative stage counts
+    //    (new=captured, engaged<=new, qualified<=engaged, converted<=qualified)
+    // 2) Generated reports (older generator behavior): funnel.* are status buckets
+    //    (New/Engaged/Qualified/Converted/Lost) and are NOT cumulative.
+    //
+    // This helper detects which shape it is and normalizes into cumulative stage
+    // counts so the funnel + drop-off chart always make sense.
+
+    const totalLeadsFromSummary = safeNumber(
+        report?.executiveSummary?.totalLeads
     );
-    const engagedLeads = safeNumber(report?.funnel?.engaged);
-    const qualifiedLeads = safeNumber(report?.funnel?.qualified);
-    const convertedLeads = safeNumber(
-        report?.funnel?.converted,
-        safeNumber(report?.executiveSummary?.convertedLeads)
+
+    // Raw funnel values (may be cumulative OR buckets depending on report source)
+    const funnelNew = safeNumber(report?.funnel?.new);
+    const funnelEngaged = safeNumber(report?.funnel?.engaged);
+    const funnelQualified = safeNumber(report?.funnel?.qualified);
+    const funnelConverted = safeNumber(report?.funnel?.converted);
+
+    // If the values are monotonic decreasing, it's *probably* already cumulative.
+    const funnelLooksCumulative =
+        funnelNew > 0 &&
+        funnelEngaged <= funnelNew &&
+        funnelQualified <= funnelEngaged &&
+        funnelConverted <= funnelQualified;
+
+    // Captured = total leads
+    // - If funnel is cumulative, use funnel.new (fallback to executive summary total)
+    // - If funnel is buckets, use executive summary total (fallback to funnel.new)
+    const capturedLeads = funnelLooksCumulative
+        ? safeNumber(funnelNew, totalLeadsFromSummary)
+        : safeNumber(totalLeadsFromSummary, funnelNew);
+
+    // Prefer executiveSummary.convertedLeads because it's computed from conversion flag/status
+    const convertedFromSummary = safeNumber(
+        report?.executiveSummary?.convertedLeads
     );
+
+    // Normalize into cumulative stages:
+    // - If cumulative: use funnel values directly
+    // - If buckets: build cumulative by adding downstream stages
+    let convertedLeads = funnelLooksCumulative
+        ? safeNumber(funnelConverted, convertedFromSummary)
+        : safeNumber(convertedFromSummary, funnelConverted);
+
+    let qualifiedLeads = funnelLooksCumulative
+        ? safeNumber(funnelQualified)
+        : safeNumber(funnelQualified + convertedLeads);
+
+    let engagedLeads = funnelLooksCumulative
+        ? safeNumber(funnelEngaged)
+        : safeNumber(funnelEngaged + qualifiedLeads);
+
+    // Clamp to captured for sanity (prevents charts from going above total leads)
+    convertedLeads = clampInt(convertedLeads, 0, capturedLeads);
+    qualifiedLeads = clampInt(qualifiedLeads, 0, capturedLeads);
+    engagedLeads = clampInt(engagedLeads, 0, capturedLeads);
 
     const conversionRateFromSummary = safeNumber(
         report?.executiveSummary?.conversionRate
@@ -69,11 +118,30 @@ export function buildConversionFunnelModel(report: any): ConversionFunnelModel {
         report?.executiveSummary?.avgFollowUpTime
     );
 
-    // Contacted stage: still derived (we don't store contacted in funnel)
-    const contactedBase =
-        avgFollowUpHours <= 24 ? 0.82 : avgFollowUpHours <= 48 ? 0.76 : 0.68;
+    // Contacted stage:
+    // Prefer the value stored in the report (generator-calculated).
+    // Fallback to the old heuristic only for older reports that don't have funnel.contacted yet.
+    const hasContactedField =
+        report?.funnel &&
+        Object.prototype.hasOwnProperty.call(report.funnel, "contacted");
 
-    let contacted = clampInt(capturedLeads * contactedBase, 0, capturedLeads);
+    const contactedFromReport = safeNumber(report?.funnel?.contacted, 0);
+
+    let contacted: number;
+
+    if (hasContactedField) {
+        contacted = clampInt(contactedFromReport, 0, capturedLeads);
+    } else {
+        // Backwards-compatible fallback: keep behavior for old reports.
+        const contactedBase =
+            avgFollowUpHours <= 24
+                ? 0.82
+                : avgFollowUpHours <= 48
+                  ? 0.76
+                  : 0.68;
+
+        contacted = clampInt(capturedLeads * contactedBase, 0, capturedLeads);
+    }
 
     // Enforce monotonic consistency:
     let converted = clampInt(convertedLeads, 0, capturedLeads);
@@ -117,7 +185,10 @@ export function buildConversionFunnelModel(report: any): ConversionFunnelModel {
     }
 
     const seed = String(report?.id ?? report?.name ?? "seed");
-    const scoreBins = buildScoreBins(capturedLeads, avgLeadScore, seed);
+    const scoreBins =
+        Array.isArray(report?.leadScoreBins) && report.leadScoreBins.length > 0
+            ? report.leadScoreBins
+            : buildScoreBins(capturedLeads, avgLeadScore, seed);
 
     const contactedRate = pct(contacted, capturedLeads);
     const engagedRate = pct(engaged, capturedLeads);
@@ -126,6 +197,7 @@ export function buildConversionFunnelModel(report: any): ConversionFunnelModel {
     const insights = buildInsights({
         stages,
         dropOff,
+        scoreBins,
         avgLeadScore,
         avgFollowUpHours,
     });
@@ -210,50 +282,135 @@ function buildScoreBins(
 function buildInsights(args: {
     stages: FunnelStage[];
     dropOff: DropOffRow[];
+    scoreBins: ScoreBin[];
     avgLeadScore: number;
     avgFollowUpHours: number;
 }) {
-    const { stages, dropOff, avgLeadScore, avgFollowUpHours } = args;
-
-    const biggestDrop = dropOff
-        .slice()
-        .sort((a, b) => b.dropRate - a.dropRate)[0];
-    const smallestStage = stages.slice().sort((a, b) => a.value - b.value)[0];
+    const { stages, dropOff, scoreBins, avgLeadScore, avgFollowUpHours } = args;
 
     const insights: string[] = [];
 
-    if (biggestDrop) {
+    // ----------------------------
+    // Funnel-based insights
+    // ----------------------------
+    const biggestDropByRate = dropOff
+        .slice()
+        .sort((a, b) => b.dropRate - a.dropRate)[0];
+
+    const biggestDropByCount = dropOff
+        .slice()
+        .sort((a, b) => b.dropCount - a.dropCount)[0];
+
+    const smallestStage = stages.slice().sort((a, b) => a.value - b.value)[0];
+
+    if (biggestDropByRate) {
         insights.push(
-            `Largest drop-off is from ${biggestDrop.fromLabel} → ${biggestDrop.toLabel} (${biggestDrop.dropRate.toFixed(
+            `Largest drop-off rate is ${biggestDropByRate.fromLabel} → ${biggestDropByRate.toLabel} (${biggestDropByRate.dropRate.toFixed(
                 1
             )}%).`
         );
     }
 
-    if (avgFollowUpHours) {
+    // If drop-by-count tells a different story, it’s often more operationally useful.
+    if (
+        biggestDropByCount &&
+        biggestDropByRate &&
+        biggestDropByCount.fromLabel !== biggestDropByRate.fromLabel
+    ) {
         insights.push(
-            `Average follow-up time is ${avgFollowUpHours.toFixed(
-                1
-            )} hours — faster follow-ups usually improve Contacted and Engaged rates.`
-        );
-    }
-
-    if (Number.isFinite(avgLeadScore)) {
-        insights.push(
-            `Average lead score is ${avgLeadScore.toFixed(
-                1
-            )}. Use score bands to prioritize high-intent leads first.`
+            `Largest drop-off by volume is ${biggestDropByCount.fromLabel} → ${biggestDropByCount.toLabel} (${biggestDropByCount.dropCount} leads).`
         );
     }
 
     if (smallestStage) {
         insights.push(
-            `Smallest stage is ${smallestStage.label} — focus actions on increasing progression into this stage.`
+            `Smallest stage is ${smallestStage.label} — focus actions that move leads into this stage.`
         );
     }
 
+    // ----------------------------
+    // Follow-up / speed insight
+    // ----------------------------
+    if (Number.isFinite(avgFollowUpHours) && avgFollowUpHours > 0) {
+        const speedHint =
+            avgFollowUpHours <= 24
+                ? "This is within a strong response window."
+                : avgFollowUpHours <= 48
+                  ? "Consider pushing this closer to < 24 hours to improve engagement."
+                  : "This is slow — tightening follow-up SLAs will likely improve progression.";
+
+        insights.push(
+            `Average follow-up time is ${avgFollowUpHours.toFixed(
+                1
+            )} hours. ${speedHint}`
+        );
+    }
+
+    // ----------------------------
+    // Score distribution insights (real bins)
+    // ----------------------------
+    const totalFromBins =
+        scoreBins?.reduce(
+            (sum, b) => sum + (Number.isFinite(b.count) ? b.count : 0),
+            0
+        ) || 0;
+
+    // Fallback: use captured leads if bins are missing/empty.
+    const captured = stages.find((s) => s.key === "captured")?.value ?? 0;
+    const total = totalFromBins > 0 ? totalFromBins : captured;
+
+    // Define intent bands by numeric ranges rather than labels (more robust).
+    const lowIntentCount = scoreBins
+        .filter((b) => b.max <= 40)
+        .reduce((sum, b) => sum + b.count, 0);
+
+    const highIntentCount = scoreBins
+        .filter((b) => b.min >= 61)
+        .reduce((sum, b) => sum + b.count, 0);
+
+    const midIntentCount = Math.max(
+        0,
+        total - lowIntentCount - highIntentCount
+    );
+
+    const lowIntentPct = pct(lowIntentCount, total);
+    const highIntentPct = pct(highIntentCount, total);
+
+    if (total > 0) {
+        insights.push(
+            `${highIntentPct.toFixed(1)}% (${highIntentCount}) of leads are high-intent (61–100). Prioritize these for fastest follow-up and personalized outreach.`
+        );
+
+        insights.push(
+            `${lowIntentPct.toFixed(1)}% (${lowIntentCount}) of leads are low-intent (0–40). Consider improving targeting, lead capture quality, or early-stage nurture content.`
+        );
+
+        // A small extra insight that helps interpretation:
+        if (lowIntentCount > highIntentCount * 2) {
+            insights.push(
+                `Low-intent leads significantly outweigh high-intent leads — review campaigns/channels to reduce unqualified inflow and protect team follow-up capacity.`
+            );
+        } else if (highIntentCount >= midIntentCount && highIntentCount > 0) {
+            insights.push(
+                `High-intent leads form a large share of the pipeline — conversion should improve if follow-ups stay fast and consistent.`
+            );
+        }
+    }
+
+    // ----------------------------
+    // Avg score quick context
+    // ----------------------------
+    if (Number.isFinite(avgLeadScore)) {
+        insights.push(
+            `Average lead score is ${avgLeadScore.toFixed(
+                1
+            )}. Use score bands to sequence work: high-intent first, then mid-intent nurture, then re-qualification for low-intent.`
+        );
+    }
+
+    // Keep this note accurate for the current mockup state.
     insights.push(
-        "For mockup: Captured/Engaged/Qualified/Converted counts come from report.funnel. Contacted is derived using follow-up speed. Later this page will compute all stages from real engagement events and scoring rules."
+        "For mockup: Captured uses executiveSummary.totalLeads. Engaged/Qualified/Converted are derived as cumulative stages from report funnel data. Contacted is still estimated using follow-up speed. Later, this page should compute Contacted/Engaged from real engagement events."
     );
 
     return insights;
