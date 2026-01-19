@@ -58,5 +58,11 @@ export default [
 
         // "/preview/geographic-view"
         route("preview/geographic-view", "routes/preview.geographic_view.tsx"),
+
+        // "/preview/report-validation"
+        route(
+            "preview/report-validation",
+            "routes/preview.report_validation.tsx"
+        ),
     ]),
 ] satisfies RouteConfig;

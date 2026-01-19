@@ -92,6 +92,41 @@ export type LeadScoreBin = {
     percent: number; // percent of total leads (0–100)
 };
 
+// Data quality snapshot for the leads used in the report scope.
+// This is designed to be business-friendly and actionable.
+export type DataQualityFieldStats = {
+    field:
+        | "status"
+        | "agent"
+        | "channel"
+        | "campaign"
+        | "region"
+        | "leadScore"
+        | "createdAt";
+    total: number;
+
+    missingCount: number;
+    missingPercent: number; // 0–100
+
+    // “Unknown” is when the string exists but is blank-like or obviously invalid.
+    // (We keep this separate from “missing” to make intervention easier.)
+    unknownCount: number;
+    unknownPercent: number; // 0–100
+
+    // Top raw values (helps spot variants like "FB" vs "Facebook ")
+    topValues: Array<{
+        value: string;
+        count: number;
+        percent: number; // 0–100
+    }>;
+};
+
+export type ReportDataQuality = {
+    version: 1;
+    totalScopedLeads: number;
+    fields: DataQualityFieldStats[];
+};
+
 export type GeneratedReport = {
     id: string;
     name: string;
@@ -148,6 +183,9 @@ export type GeneratedReport = {
 
     // Optional: if present, Conversion & Funnel can show real score distribution
     leadScoreBins?: LeadScoreBin[];
+
+    // Optional: stored data quality stats used by Report Validation page.
+    dataQuality?: ReportDataQuality;
 
     regions?: RegionPerformanceRow[];
     agents?: AgentPerformanceRow[];

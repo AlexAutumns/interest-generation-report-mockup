@@ -17,6 +17,7 @@ import {
     Globe,
     GlobeIcon,
     Globe2Icon,
+    ShieldCheck,
 } from "lucide-react";
 
 type NavItem = {
@@ -80,6 +81,11 @@ const previewSection: NavSection = {
             label: "Geographic View",
             to: "/preview/geographic-view",
             icon: Globe2Icon,
+        },
+        {
+            label: "Report Validation",
+            to: "/preview/report-validation",
+            icon: ShieldCheck,
         },
     ],
 };

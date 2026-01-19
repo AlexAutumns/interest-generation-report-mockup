@@ -11,6 +11,8 @@ import type {
     AgentPerformanceRow,
     LostReasonRow,
     LeadScoreBin,
+    ReportDataQuality,
+    DataQualityFieldStats,
 } from "../types/reports";
 
 import type { LeadRow } from "../types/leads";
@@ -24,6 +26,122 @@ export type GenerateReportResult = {
 function pct(n: number, d: number): number {
     if (!d || d <= 0) return 0;
     return (n / d) * 100;
+}
+
+function buildDataQuality(scoped: any[]): ReportDataQuality {
+    const total = scoped.length || 0;
+
+    // For consistent handling: treat null/undefined/"", "n/a", "-" as missing/unknown.
+    const norm = (v: unknown) => String(v ?? "").trim();
+    const isBlankLike = (s: string) => {
+        const t = s.trim().toLowerCase();
+        return (
+            t === "" ||
+            t === "n/a" ||
+            t === "na" ||
+            t === "-" ||
+            t === "none" ||
+            t === "null" ||
+            t === "undefined"
+        );
+    };
+
+    const pctSafe = (count: number, denom: number) =>
+        denom > 0 ? (count / denom) * 100 : 0;
+
+    const topK = (map: Map<string, number>, k: number) => {
+        const arr = Array.from(map.entries())
+            .map(([value, count]) => ({ value, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, k);
+
+        return arr.map((x) => ({
+            value: x.value,
+            count: x.count,
+            percent: pctSafe(x.count, total),
+        }));
+    };
+
+    const fieldStats = (
+        field: DataQualityFieldStats["field"],
+        getter: (lead: any) => unknown,
+        opts?: {
+            treatNonNumericAsUnknown?: boolean;
+            numericRange?: { min: number; max: number };
+        }
+    ): DataQualityFieldStats => {
+        let missingCount = 0;
+        let unknownCount = 0;
+        const valueCounts = new Map<string, number>();
+
+        for (const lead of scoped) {
+            const raw = getter(lead);
+
+            // Missing: null/undefined
+            if (raw === null || raw === undefined) {
+                missingCount++;
+                continue;
+            }
+
+            // Special numeric handling (leadScore)
+            if (opts?.numericRange) {
+                const n = Number(raw);
+
+                if (!Number.isFinite(n)) {
+                    // Non-numeric present (e.g., "abc") counts as unknown
+                    unknownCount++;
+                    continue;
+                }
+
+                // Out-of-range numeric values count as unknown (still present, but invalid)
+                if (n < opts.numericRange.min || n > opts.numericRange.max) {
+                    unknownCount++;
+                    continue;
+                }
+
+                const label = String(Math.round(n));
+                valueCounts.set(label, (valueCounts.get(label) ?? 0) + 1);
+                continue;
+            }
+
+            // String-like handling
+            const s = norm(raw);
+
+            if (isBlankLike(s)) {
+                // Present but blank-like => unknown
+                unknownCount++;
+                continue;
+            }
+
+            valueCounts.set(s, (valueCounts.get(s) ?? 0) + 1);
+        }
+
+        return {
+            field,
+            total,
+            missingCount,
+            missingPercent: pctSafe(missingCount, total),
+            unknownCount,
+            unknownPercent: pctSafe(unknownCount, total),
+            topValues: topK(valueCounts, 8),
+        };
+    };
+
+    return {
+        version: 1,
+        totalScopedLeads: total,
+        fields: [
+            fieldStats("status", (l) => l.status),
+            fieldStats("agent", (l) => l.agent),
+            fieldStats("channel", (l) => l.channel),
+            fieldStats("campaign", (l) => l.campaign),
+            fieldStats("region", (l) => l.region),
+            fieldStats("leadScore", (l) => l.leadScore, {
+                numericRange: { min: 0, max: 100 },
+            }),
+            fieldStats("createdAt", (l) => l.createdAt),
+        ],
+    };
 }
 
 function sum(nums: number[]): number {
@@ -512,6 +630,10 @@ export function generateReportFromLeads(
     // 2) Optional advanced filters (preview)
     const scoped = applyPreviewFilters(inPeriod, settings);
 
+    // Store lead-level data quality for validation + business intervention.
+    // This avoids guessing completeness from grouped sums.
+    const dataQuality = buildDataQuality(scoped);
+
     // Core numbers
     const totalLeads = scoped.length;
     const convertedLeads = scoped.filter(isConvertedLead).length;
@@ -772,6 +894,7 @@ export function generateReportFromLeads(
 
         regions,
         agents,
+        dataQuality,
     };
 
     // Non-blocking validation to catch silent math drift during development.
