@@ -127,6 +127,23 @@ export type ReportDataQuality = {
     fields: DataQualityFieldStats[];
 };
 
+// Snapshot of filter settings used when the report was generated.
+// This is stored in the report so preview/validation pages can show the true scope.
+export type ReportFilterSnapshot = {
+    scopeMode: "all" | "filtered";
+    applyFiltersTo: "preview_only" | "exports_only" | "both";
+
+    // Whether filters were actually applied to the dataset used for THIS report object.
+    // (If applyFiltersTo=exports_only, then the report preview won’t be filtered.)
+    appliedToReport: boolean;
+
+    channels: string[];
+    regions: string[];
+    campaigns: string[];
+    agents: string[];
+    statuses: string[];
+};
+
 export type GeneratedReport = {
     id: string;
     name: string;
@@ -186,6 +203,9 @@ export type GeneratedReport = {
 
     // Optional: stored data quality stats used by Report Validation page.
     dataQuality?: ReportDataQuality;
+
+    // Filter scope snapshot (used by Report Validation page).
+    filters?: ReportFilterSnapshot;
 
     regions?: RegionPerformanceRow[];
     agents?: AgentPerformanceRow[];

@@ -13,6 +13,7 @@ import type {
     LeadScoreBin,
     ReportDataQuality,
     DataQualityFieldStats,
+    ReportFilterSnapshot,
 } from "../types/reports";
 
 import type { LeadRow } from "../types/leads";
@@ -68,7 +69,7 @@ function buildDataQuality(scoped: any[]): ReportDataQuality {
         opts?: {
             treatNonNumericAsUnknown?: boolean;
             numericRange?: { min: number; max: number };
-        }
+        },
     ): DataQualityFieldStats => {
         let missingCount = 0;
         let unknownCount = 0;
@@ -194,7 +195,7 @@ function runReportSanityChecks(report: GeneratedReport): void {
     // 1) Total consistency: funnel.new must match executiveSummary.totalLeads
     if (isFiniteNumber(f.new) && isFiniteNumber(total) && f.new !== total) {
         warnings.push(
-            `Total mismatch: funnel.new (${f.new}) != executiveSummary.totalLeads (${total}).`
+            `Total mismatch: funnel.new (${f.new}) != executiveSummary.totalLeads (${total}).`,
         );
     }
 
@@ -205,7 +206,7 @@ function runReportSanityChecks(report: GeneratedReport): void {
         f.converted !== convertedSummary
     ) {
         warnings.push(
-            `Converted mismatch: funnel.converted (${f.converted}) != executiveSummary.convertedLeads (${convertedSummary}).`
+            `Converted mismatch: funnel.converted (${f.converted}) != executiveSummary.convertedLeads (${convertedSummary}).`,
         );
     }
 
@@ -228,7 +229,7 @@ function runReportSanityChecks(report: GeneratedReport): void {
 
         if (a.value < b.value) {
             warnings.push(
-                `Funnel monotonicity violated: ${a.key} (${a.value}) < ${b.key} (${b.value}).`
+                `Funnel monotonicity violated: ${a.key} (${a.value}) < ${b.key} (${b.value}).`,
             );
         }
     }
@@ -240,12 +241,12 @@ function runReportSanityChecks(report: GeneratedReport): void {
     ) {
         const binsTotal = report.leadScoreBins.reduce(
             (s, b) => s + (isFiniteNumber(b.count) ? b.count : 0),
-            0
+            0,
         );
 
         if (isFiniteNumber(total) && binsTotal !== total) {
             warnings.push(
-                `Lead score bins mismatch: sum(bins) (${binsTotal}) != totalLeads (${total}).`
+                `Lead score bins mismatch: sum(bins) (${binsTotal}) != totalLeads (${total}).`,
             );
         }
     }
@@ -257,28 +258,28 @@ function runReportSanityChecks(report: GeneratedReport): void {
     const channelsTotal = sumLeads(report.channels ?? []);
     if (isFiniteNumber(total) && channelsTotal !== total) {
         warnings.push(
-            `Channels sum mismatch: sum(channels.leads) (${channelsTotal}) != totalLeads (${total}).`
+            `Channels sum mismatch: sum(channels.leads) (${channelsTotal}) != totalLeads (${total}).`,
         );
     }
 
     const campaignsTotal = sumLeads(report.campaigns ?? []);
     if (isFiniteNumber(total) && campaignsTotal !== total) {
         warnings.push(
-            `Campaigns sum mismatch: sum(campaigns.leads) (${campaignsTotal}) != totalLeads (${total}).`
+            `Campaigns sum mismatch: sum(campaigns.leads) (${campaignsTotal}) != totalLeads (${total}).`,
         );
     }
 
     const regionsTotal = sumLeads(report.regions ?? []);
     if (isFiniteNumber(total) && regionsTotal !== total) {
         warnings.push(
-            `Regions sum mismatch: sum(regions.leads) (${regionsTotal}) != totalLeads (${total}).`
+            `Regions sum mismatch: sum(regions.leads) (${regionsTotal}) != totalLeads (${total}).`,
         );
     }
 
     const agentsTotal = sumLeads(report.agents ?? []);
     if (isFiniteNumber(total) && agentsTotal !== total) {
         warnings.push(
-            `Agents sum mismatch: sum(agents.leads) (${agentsTotal}) != totalLeads (${total}).`
+            `Agents sum mismatch: sum(agents.leads) (${agentsTotal}) != totalLeads (${total}).`,
         );
     }
 
@@ -287,13 +288,13 @@ function runReportSanityChecks(report: GeneratedReport): void {
         // Keep it readable: one warning + list of issues.
         console.warn(
             `[ReportGenerator] Sanity check warnings for ${report.id} (${report.periodLabel}):`,
-            warnings
+            warnings,
         );
     }
 }
 
 function buildLeadScoreBins(
-    scores: Array<number | null | undefined>
+    scores: Array<number | null | undefined>,
 ): LeadScoreBin[] {
     // We clamp scores to 0–100 because leadScore can be missing or out of range in mock data.
     const cleaned = scores
@@ -335,7 +336,7 @@ function buildReportId(): string {
 
 /** Normalize status labels to your report funnel buckets */
 function normalizeStatus(
-    s: string | undefined
+    s: string | undefined,
 ): "New" | "Engaged" | "Qualified" | "Converted" | "Lost" | "Other" {
     const v = (s ?? "").trim().toLowerCase();
     if (!v) return "Other";
@@ -388,7 +389,7 @@ function parseDateOnly(input: string | undefined | null): Date | null {
 function isBetweenInclusive(
     dateIso: string | undefined,
     startIso: string,
-    endIso: string
+    endIso: string,
 ): boolean {
     const t = parseDateOnly(dateIso);
     const a = parseDateOnly(startIso);
@@ -412,7 +413,7 @@ function getIsoWeekNumber(d: Date): number {
     date.setUTCDate(date.getUTCDate() + 4 - dayNum);
     const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
     return Math.ceil(
-        ((date.getTime() - yearStart.getTime()) / 86400000 + 1) / 7
+        ((date.getTime() - yearStart.getTime()) / 86400000 + 1) / 7,
     );
 }
 
@@ -503,7 +504,7 @@ function buildDefaultReportName(type: ReportType, periodLabel: string): string {
 function pickReportName(
     settings: GenerateReportFormValues,
     type: ReportType,
-    periodLabel: string
+    periodLabel: string,
 ): string {
     const custom = (settings.customName ?? "").trim();
     if (custom.length > 0) return custom;
@@ -511,7 +512,7 @@ function pickReportName(
 }
 
 function shouldApplyFiltersToPreview(
-    settings: GenerateReportFormValues
+    settings: GenerateReportFormValues,
 ): boolean {
     if (settings.scopeMode !== "filtered") return false;
     return (
@@ -522,7 +523,7 @@ function shouldApplyFiltersToPreview(
 
 function applyPreviewFilters(
     leads: LeadRow[],
-    settings: GenerateReportFormValues
+    settings: GenerateReportFormValues,
 ): LeadRow[] {
     if (!shouldApplyFiltersToPreview(settings)) return leads;
 
@@ -563,6 +564,32 @@ function applyPreviewFilters(
             match(l.campaign, campaignSet)
         );
     });
+}
+
+function cleanFilterList(arr: string[] | undefined): string[] {
+    // Keep the user’s selected labels readable, but remove empties.
+    return (arr ?? []).map((x) => (x ?? "").trim()).filter(Boolean);
+}
+
+function buildReportFilterSnapshot(
+    settings: GenerateReportFormValues,
+): ReportFilterSnapshot {
+    // NOTE:
+    // The current generator uses applyPreviewFilters() to compute the dataset used for the report.
+    // So "appliedToReport" matches shouldApplyFiltersToPreview(settings).
+    const appliedToReport = shouldApplyFiltersToPreview(settings);
+
+    return {
+        scopeMode: settings.scopeMode ?? "all",
+        applyFiltersTo: settings.applyFiltersTo ?? "both",
+        appliedToReport,
+
+        channels: cleanFilterList(settings.channels),
+        regions: cleanFilterList(settings.regions),
+        campaigns: cleanFilterList(settings.campaigns),
+        agents: cleanFilterList(settings.agents),
+        statuses: cleanFilterList(settings.statuses),
+    };
 }
 
 function groupBy<T>(rows: T[], keyFn: (r: T) => string): Map<string, T[]> {
@@ -617,18 +644,22 @@ function buildSummaryFromReport(r: GeneratedReport): ReportSummary {
 export function generateReportFromLeads(
     settings: GenerateReportFormValues,
     allLeads: LeadRow[],
-    opts?: { generatedBy?: string; status?: ReportStatus }
+    opts?: { generatedBy?: string; status?: ReportStatus },
 ): GenerateReportResult {
     const { periodStart, periodEnd, periodLabel, type } =
         buildPeriodRangeFromSettings(settings);
 
     // 1) Period filter (bucket by createdAt)
     const inPeriod = allLeads.filter((l) =>
-        isBetweenInclusive(l.createdAt, periodStart, periodEnd)
+        isBetweenInclusive(l.createdAt, periodStart, periodEnd),
     );
 
     // 2) Optional advanced filters (preview)
     const scoped = applyPreviewFilters(inPeriod, settings);
+
+    // Store the user's scope settings into the report JSON.
+    // This enables the Validation page to show exactly what scope produced the metrics.
+    const filters = buildReportFilterSnapshot(settings);
 
     // Store lead-level data quality for validation + business intervention.
     // This avoids guessing completeness from grouped sums.
@@ -661,10 +692,10 @@ export function generateReportFromLeads(
     const statusNew = statusBuckets.filter((s) => s === "New").length;
     const statusEngaged = statusBuckets.filter((s) => s === "Engaged").length;
     const statusQualified = statusBuckets.filter(
-        (s) => s === "Qualified"
+        (s) => s === "Qualified",
     ).length;
     const statusConverted = statusBuckets.filter(
-        (s) => s === "Converted"
+        (s) => s === "Converted",
     ).length;
     const statusLost = statusBuckets.filter((s) => s === "Lost").length;
 
@@ -743,7 +774,7 @@ export function generateReportFromLeads(
     const funnelLost = statusLost;
 
     const slaBreachCount = scoped.filter(
-        (l) => (l.slaBreached ?? 0) > 0
+        (l) => (l.slaBreached ?? 0) > 0,
     ).length;
 
     const lostReasonsMap = new Map<string, number>();
@@ -835,7 +866,7 @@ export function generateReportFromLeads(
         totalLeads === 0
             ? "No leads were found in the selected period (and filters)."
             : `This period generated ${totalLeads} leads with a ${conversionRate.toFixed(
-                  1
+                  1,
               )}% conversion rate. Top channel was ${topChannel} and top region was ${topRegion}.`;
 
     const report: GeneratedReport = {
@@ -895,6 +926,7 @@ export function generateReportFromLeads(
         regions,
         agents,
         dataQuality,
+        filters,
     };
 
     // Non-blocking validation to catch silent math drift during development.
@@ -913,7 +945,7 @@ export function generateReportFromLeads(
  */
 export async function generateReportFromSettings(
     settings: GenerateReportFormValues,
-    opts?: { generatedBy?: string; status?: ReportStatus }
+    opts?: { generatedBy?: string; status?: ReportStatus },
 ): Promise<GenerateReportResult> {
     const leads = await leadsRepository.listAllLeads();
     return generateReportFromLeads(settings, leads, opts);

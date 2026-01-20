@@ -25,6 +25,13 @@ export type ReportFallbackFlags = {
 
 export type ReportFilterSummary = {
     periodLabel: string;
+
+    scopeMode: "all" | "filtered" | "unknown";
+    applyFiltersTo: "preview_only" | "exports_only" | "both" | "unknown";
+
+    // null means "report is old and doesn’t store this yet"
+    appliedToReport: boolean | null;
+
     agents: string[];
     statuses: string[];
     channels: string[];
@@ -58,7 +65,7 @@ function normalizeKey(raw: string): string {
 
 function findLabelVariants<T extends { name: string; leads: number }>(
     field: LabelVariantGroup["field"],
-    rows: T[] | undefined
+    rows: T[] | undefined,
 ): LabelVariantGroup[] {
     if (!rows || rows.length === 0) return [];
 
@@ -80,13 +87,13 @@ function findLabelVariants<T extends { name: string; leads: number }>(
     for (const [key, variants] of map.entries()) {
         // Only consider it a "variant problem" if there are at least 2 distinct labels
         const distinctLabels = Array.from(
-            new Set(variants.map((v) => v.label))
+            new Set(variants.map((v) => v.label)),
         );
         if (distinctLabels.length < 2) continue;
 
         const totalLeads = variants.reduce(
             (s, v) => s + safeNumber(v.leads, 0),
-            0
+            0,
         );
 
         // Sort variants by impact (highest leads first) so it's easy to read
@@ -129,19 +136,19 @@ function makeIssue(
     title: string,
     meaning: string,
     action: string,
-    details?: string
+    details?: string,
 ): ValidationIssue {
     return { id, severity, title, meaning, action, details };
 }
 
 export function buildReportValidationModel(
-    report: GeneratedReport
+    report: GeneratedReport,
 ): ReportValidationModel {
     const issues: ValidationIssue[] = [];
 
     const total = safeNumber(report.executiveSummary?.totalLeads);
     const convertedSummary = safeNumber(
-        report.executiveSummary?.convertedLeads
+        report.executiveSummary?.convertedLeads,
     );
 
     const fNew = safeNumber(report.funnel?.new);
@@ -161,8 +168,8 @@ export function buildReportValidationModel(
                 "Total leads mismatch",
                 "The report’s total lead count does not match the funnel’s Captured stage.",
                 "Check filters and data mappings (status/channel/region). Re-generate after correcting source values.",
-                `funnel.new=${fNew}, executiveSummary.totalLeads=${total}`
-            )
+                `funnel.new=${fNew}, executiveSummary.totalLeads=${total}`,
+            ),
         );
     }
 
@@ -174,8 +181,8 @@ export function buildReportValidationModel(
                 "Converted leads mismatch",
                 "The funnel Converted stage does not match the Executive Summary converted total.",
                 "Check the conversion definition (conversion flag vs status) and ensure data is consistently updated.",
-                `funnel.converted=${fConverted}, executiveSummary.convertedLeads=${convertedSummary}`
-            )
+                `funnel.converted=${fConverted}, executiveSummary.convertedLeads=${convertedSummary}`,
+            ),
         );
     }
 
@@ -183,7 +190,7 @@ export function buildReportValidationModel(
     // Contacted may be 0 if missing (older reports) — we handle that separately.
     const hasContacted = Object.prototype.hasOwnProperty.call(
         report.funnel as any,
-        "contacted"
+        "contacted",
     );
     if (hasContacted) {
         if (
@@ -201,8 +208,8 @@ export function buildReportValidationModel(
                     "Funnel stage ordering is inconsistent",
                     "Some funnel stages are larger than the stage before them, which should not happen in a well-formed funnel.",
                     "Review status progression rules and ensure updates follow the agreed process (Engaged → Qualified → Converted).",
-                    `Captured=${fNew}, Contacted=${fContacted}, Engaged=${fEngaged}, Qualified=${fQualified}, Converted=${fConverted}`
-                )
+                    `Captured=${fNew}, Contacted=${fContacted}, Engaged=${fEngaged}, Qualified=${fQualified}, Converted=${fConverted}`,
+                ),
             );
         }
     } else {
@@ -213,8 +220,8 @@ export function buildReportValidationModel(
                 "Contacted stage is not stored in this report",
                 "This report does not include a stored Contacted value (older format). The UI may estimate it.",
                 "If you need stable Contacted reporting, re-generate the report using the latest generator.",
-                "funnel.contacted is missing"
-            )
+                "funnel.contacted is missing",
+            ),
         );
     }
 
@@ -286,8 +293,8 @@ export function buildReportValidationModel(
                 "Warning",
                 "Grouped totals do not match total leads",
                 "One or more grouped tables (channel/campaign/region/agent) does not add up to the total lead count.",
-                "Check for missing values or inconsistent labels (e.g., 'Facebook', 'FB', 'Facebook '). Normalize and re-generate."
-            )
+                "Check for missing values or inconsistent labels (e.g., 'Facebook', 'FB', 'Facebook '). Normalize and re-generate.",
+            ),
         );
     }
 
@@ -302,8 +309,8 @@ export function buildReportValidationModel(
                 "Warning",
                 "Conversion rate is unusually high",
                 "Conversion rate is very high for the lead volume. This can be valid, but often indicates filtered data or missing non-converted leads.",
-                "Confirm filters and ensure lost/unqualified leads are included. Review lead status updates."
-            )
+                "Confirm filters and ensure lost/unqualified leads are included. Review lead status updates.",
+            ),
         );
     }
 
@@ -315,8 +322,8 @@ export function buildReportValidationModel(
                 "Warning",
                 "Average lead score is outside the expected range",
                 "Lead scores are expected to be between 0 and 100.",
-                "Check lead score calculation or source field mapping."
-            )
+                "Check lead score calculation or source field mapping.",
+            ),
         );
     }
 
@@ -328,8 +335,8 @@ export function buildReportValidationModel(
                 "Warning",
                 "Average follow-up time is negative",
                 "Follow-up time should not be negative and may indicate incorrect date/time parsing.",
-                "Check activity timestamps and date parsing logic."
-            )
+                "Check activity timestamps and date parsing logic.",
+            ),
         );
     } else if (avgFollowUp > 168) {
         issues.push(
@@ -338,8 +345,8 @@ export function buildReportValidationModel(
                 "Info",
                 "Average follow-up time is very high",
                 "Average follow-up time is over 7 days. This may indicate backlog or missing follow-up data.",
-                "Review follow-up SLAs and confirm follow-up timestamps are recorded."
-            )
+                "Review follow-up SLAs and confirm follow-up timestamps are recorded.",
+            ),
         );
     }
 
@@ -436,25 +443,11 @@ export function buildReportValidationModel(
                     "Warning",
                     `${f.label} needs attention`,
                     `A noticeable share of leads are missing or have invalid values for ${f.field}. This can distort breakdowns and totals.`,
-                    "Normalize values in the source data (fill blanks, standardize labels) and re-generate the report."
-                )
+                    "Normalize values in the source data (fill blanks, standardize labels) and re-generate the report.",
+                ),
             );
         }
     }
-
-    // ----------------------------
-    // Explainers (static, non-programmer friendly)
-    // ----------------------------
-    const explainers: ExplainerItem[] = buildExplainers();
-
-    // Sort issues by severity (Critical first) then title.
-    issues.sort((a, b) => {
-        const d = severityRank(b.severity) - severityRank(a.severity);
-        if (d !== 0) return d;
-        return a.title.localeCompare(b.title);
-    });
-
-    const health = computeHealth(issues);
 
     // ----------------------------
     // Label variants (helps business users fix split categories)
@@ -475,10 +468,25 @@ export function buildReportValidationModel(
                 "Warning",
                 "Inconsistent labels detected (possible duplicates)",
                 "Some categories may be split across multiple spellings or formats (e.g., 'FB' vs 'Facebook'). This can distort channel/campaign/region comparisons.",
-                "Normalize labels in the source data (choose one standard label) and re-generate the report."
-            )
+                "Normalize labels in the source data (choose one standard label) and re-generate the report.",
+            ),
         );
     }
+
+    // ----------------------------
+    // Explainers (static, non-programmer friendly)
+    // ----------------------------
+    const explainers: ExplainerItem[] = buildExplainers();
+
+    // Sort issues by severity (Critical first) then title.
+    issues.sort((a, b) => {
+        const d = severityRank(b.severity) - severityRank(a.severity);
+        if (d !== 0) return d;
+        return a.title.localeCompare(b.title);
+    });
+
+    // Health must be computed AFTER all issues are added.
+    const health = computeHealth(issues);
 
     return {
         health,
@@ -497,14 +505,34 @@ function cleanList(arr: unknown): string[] {
 }
 
 export function buildFilterSummary(
-    report: GeneratedReport
+    report: GeneratedReport,
 ): ReportFilterSummary {
     // We pull from report.filters if available.
     // This keeps the page aligned with whatever scope the report was generated with.
-    const f: any = (report as any).filters ?? {};
+    const f: any = (report as any).filters;
+
+    if (!f) {
+        return {
+            periodLabel: report.periodLabel,
+            scopeMode: "unknown",
+            applyFiltersTo: "unknown",
+            appliedToReport: null,
+
+            agents: [],
+            statuses: [],
+            channels: [],
+            regions: [],
+            campaigns: [],
+        };
+    }
 
     return {
         periodLabel: report.periodLabel,
+        scopeMode: f.scopeMode ?? "unknown",
+        applyFiltersTo: f.applyFiltersTo ?? "unknown",
+        appliedToReport:
+            typeof f.appliedToReport === "boolean" ? f.appliedToReport : null,
+
         agents: cleanList(f.agents),
         statuses: cleanList(f.statuses),
         channels: cleanList(f.channels),
@@ -514,11 +542,11 @@ export function buildFilterSummary(
 }
 
 export function detectFallbackFlags(
-    report: GeneratedReport
+    report: GeneratedReport,
 ): ReportFallbackFlags {
     const hasContacted = Object.prototype.hasOwnProperty.call(
         report.funnel as any,
-        "contacted"
+        "contacted",
     );
     const hasBins =
         Array.isArray((report as any).leadScoreBins) &&

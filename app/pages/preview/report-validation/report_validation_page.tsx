@@ -107,7 +107,7 @@ export default function ReportValidationPage() {
                     toast.info("Copy failed", {
                         description:
                             "Please copy the link manually from the address bar.",
-                    })
+                    }),
                 );
         } else {
             toast.info("Copy not supported", {
@@ -163,7 +163,7 @@ export default function ReportValidationPage() {
                         onClick={handleCopyLink}
                         className={cn(
                             "inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-semibold",
-                            "text-[#193E6B] hover:bg-gray-50"
+                            "text-[#193E6B] hover:bg-gray-50",
                         )}
                     >
                         <Copy className="h-4 w-4 text-[#193E6B]/70" />
@@ -194,7 +194,7 @@ export default function ReportValidationPage() {
                                         toast.info("Copy failed", {
                                             description:
                                                 "Please copy manually from the page.",
-                                        })
+                                        }),
                                     );
                             } else {
                                 toast.info("Copy not supported", {
@@ -205,7 +205,7 @@ export default function ReportValidationPage() {
                         }}
                         className={cn(
                             "inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-semibold",
-                            "text-[#193E6B] hover:bg-gray-50"
+                            "text-[#193E6B] hover:bg-gray-50",
                         )}
                     >
                         <Copy className="h-4 w-4 text-[#193E6B]/70" />
@@ -217,7 +217,7 @@ export default function ReportValidationPage() {
                         onClick={handleDownloadMock}
                         className={cn(
                             "inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-semibold",
-                            "text-[#193E6B] hover:bg-gray-50"
+                            "text-[#193E6B] hover:bg-gray-50",
                         )}
                     >
                         <Download className="h-4 w-4 text-[#193E6B]/70" />
@@ -229,7 +229,7 @@ export default function ReportValidationPage() {
                         onClick={handleOpenNewTab}
                         className={cn(
                             "hidden items-center gap-2 rounded-md border border-[#B3A125]/35 bg-[#B3A125]/10 px-3 py-2 text-sm font-semibold",
-                            "text-[#193E6B] hover:bg-[#B3A125]/15 sm:inline-flex"
+                            "text-[#193E6B] hover:bg-[#B3A125]/15 sm:inline-flex",
                         )}
                     >
                         <ExternalLink className="h-4 w-4" />
@@ -321,19 +321,19 @@ export default function ReportValidationPage() {
                                 <div className="mt-1 text-xs text-[#193E6B]">
                                     {
                                         model.issues.filter(
-                                            (i) => i.severity === "Critical"
+                                            (i) => i.severity === "Critical",
                                         ).length
                                     }{" "}
                                     critical,{" "}
                                     {
                                         model.issues.filter(
-                                            (i) => i.severity === "Warning"
+                                            (i) => i.severity === "Warning",
                                         ).length
                                     }{" "}
                                     warning,{" "}
                                     {
                                         model.issues.filter(
-                                            (i) => i.severity === "Info"
+                                            (i) => i.severity === "Info",
                                         ).length
                                     }{" "}
                                     info
@@ -353,6 +353,27 @@ export default function ReportValidationPage() {
                                     </span>{" "}
                                     {filterSummary.periodLabel}
                                 </div>
+
+                                <div className="mt-1">
+                                    <span className="font-semibold">
+                                        Filters applied to this report:
+                                    </span>{" "}
+                                    {filterSummary.appliedToReport === null
+                                        ? "Unknown (older report)"
+                                        : filterSummary.appliedToReport
+                                          ? "Yes"
+                                          : "No"}
+                                </div>
+
+                                {filterSummary.appliedToReport === false &&
+                                    filterSummary.scopeMode === "filtered" && (
+                                        <div className="mt-1 text-xs text-gray-600">
+                                            Note: filters were configured but
+                                            not applied to the report dataset
+                                            (applyFiltersTo ={" "}
+                                            {filterSummary.applyFiltersTo}).
+                                        </div>
+                                    )}
 
                                 <div className="mt-3 font-semibold text-gray-800">
                                     Filters applied
@@ -561,7 +582,7 @@ export default function ReportValidationPage() {
                                     const dq = (
                                         report as any
                                     ).dataQuality?.fields?.find(
-                                        (x: any) => x.field === field
+                                        (x: any) => x.field === field,
                                     );
                                     if (!dq) return null;
 
@@ -587,7 +608,7 @@ export default function ReportValidationPage() {
                                                             <div className="font-semibold">
                                                                 {v.count} (
                                                                 {Number(
-                                                                    v.percent
+                                                                    v.percent,
                                                                 ).toFixed(1)}
                                                                 %)
                                                             </div>
