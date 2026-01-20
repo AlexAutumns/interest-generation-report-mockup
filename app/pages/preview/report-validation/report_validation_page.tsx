@@ -129,7 +129,7 @@ export default function ReportValidationPage() {
         if (typeof window !== "undefined") {
             window.open(url, "_blank", "noopener,noreferrer");
         }
-        toast("Opened in a new tab", { description: report.name });
+        toast("Opened in a new tab", { description: report?.name });
     }
 
     return (
@@ -210,6 +210,58 @@ export default function ReportValidationPage() {
                     >
                         <Copy className="h-4 w-4 text-[#193E6B]/70" />
                         Copy issues
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                            if (model.labelVariants.length === 0) {
+                                toast.info("No suggested mappings found");
+                                return;
+                            }
+
+                            const lines = model.labelVariants
+                                .slice(0, 20)
+                                .flatMap((g) => {
+                                    if (!g.aliases || g.aliases.length === 0)
+                                        return [];
+                                    return g.aliases.map((a) => {
+                                        return `• ${g.field}: "${a.label}" → "${g.canonical}" (${a.leads} leads)`;
+                                    });
+                                });
+
+                            const text = [
+                                `Suggested label mappings: ${report.name} (${report.periodLabel})`,
+                                "",
+                                ...lines,
+                            ].join("\n");
+
+                            if (navigator?.clipboard?.writeText) {
+                                navigator.clipboard
+                                    .writeText(text)
+                                    .then(() =>
+                                        toast.success("Mappings copied"),
+                                    )
+                                    .catch(() =>
+                                        toast.info("Copy failed", {
+                                            description:
+                                                "Please copy manually from the page.",
+                                        }),
+                                    );
+                            } else {
+                                toast.info("Copy not supported", {
+                                    description:
+                                        "Please copy manually from the page.",
+                                });
+                            }
+                        }}
+                        className={cn(
+                            "inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-semibold",
+                            "text-[#193E6B] hover:bg-gray-50",
+                        )}
+                    >
+                        <Copy className="h-4 w-4 text-[#193E6B]/70" />
+                        Copy mappings
                     </button>
 
                     <button
@@ -451,6 +503,28 @@ export default function ReportValidationPage() {
                                             : "Yes"}
                                     </div>
                                 </div>
+                            </div>
+
+                            <div className="mt-4 rounded-lg border border-[#B3A125]/25 bg-[#B3A125]/10 p-3 text-xs text-[#193E6B]">
+                                <div className="font-semibold">
+                                    Quick actions
+                                </div>
+                                <ul className="mt-2 list-disc space-y-1 pl-4">
+                                    <li>
+                                        If you see missing values, assign
+                                        Channel/Region/Campaign before the next
+                                        refresh.
+                                    </li>
+                                    <li>
+                                        If you see duplicates (e.g., “FB” vs
+                                        “Facebook”), normalize labels in the
+                                        source system.
+                                    </li>
+                                    <li>
+                                        Re-generate the report after cleanup to
+                                        confirm issues are resolved.
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </Card>

@@ -99,10 +99,17 @@ function findLabelVariants<T extends { name: string; leads: number }>(
         // Sort variants by impact (highest leads first) so it's easy to read
         variants.sort((a, b) => b.leads - a.leads);
 
+        const canonical = variants[0]?.label ?? distinctLabels[0];
+        const aliases = variants
+            .slice(1)
+            .map((v) => ({ label: v.label, leads: v.leads }));
+
         groups.push({
             field,
             normalizedKey: key,
             variants: variants.map((v) => ({ label: v.label, leads: v.leads })),
+            canonical,
+            aliases,
             totalLeads,
         });
     }
@@ -212,18 +219,11 @@ export function buildReportValidationModel(
                 ),
             );
         }
-    } else {
-        issues.push(
-            makeIssue(
-                "contacted-missing",
-                "Info",
-                "Contacted stage is not stored in this report",
-                "This report does not include a stored Contacted value (older format). The UI may estimate it.",
-                "If you need stable Contacted reporting, re-generate the report using the latest generator.",
-                "funnel.contacted is missing",
-            ),
-        );
     }
+    //     } else {
+    // Contacted is missing. We report this as an Info-level fallback issue
+    // (so the message is consistent and appears only once).
+    // }
 
     // ----------------------------
     // Warning-level reconciliation checks
@@ -454,8 +454,6 @@ export function buildReportValidationModel(
     // ----------------------------
     // Prefer lead-level dataQuality if available (more accurate).
     // Fallback to grouped tables for older reports.
-    // Prefer lead-level dataQuality if available (more accurate).
-    // Fallback to grouped tables for older reports.
     const labelVariants: LabelVariantGroup[] = [
         ...findLabelVariantsFromDataQuality(report, "Channel"),
         ...findLabelVariantsFromDataQuality(report, "Campaign"),
@@ -483,6 +481,54 @@ export function buildReportValidationModel(
                 "Inconsistent labels detected (possible duplicates)",
                 "Some categories may be split across multiple spellings or formats (e.g., 'FB' vs 'Facebook'). This can distort channel/campaign/region comparisons.",
                 "Normalize labels in the source data (choose one standard label) and re-generate the report.",
+            ),
+        );
+    }
+
+    // ----------------------------
+    // Fallback usage (Info-level issues)
+    // These help business users understand when a chart may be using placeholders.
+    // ----------------------------
+    const hasBins =
+        Array.isArray((report as any).leadScoreBins) &&
+        (report as any).leadScoreBins.length > 0;
+
+    const hasTrend =
+        Array.isArray((report as any).trend) &&
+        (report as any).trend.length > 0;
+
+    if (!hasContacted) {
+        issues.push(
+            makeIssue(
+                "fallback-contacted",
+                "Info",
+                "Contacted stage is estimated or missing",
+                "This report does not store a Contacted value, so some views may estimate Contacted.",
+                "Re-generate the report using the latest generator to store funnel.contacted.",
+            ),
+        );
+    }
+
+    if (!hasBins) {
+        issues.push(
+            makeIssue(
+                "fallback-bins",
+                "Info",
+                "Lead score bins are missing",
+                "Lead score distribution may use fallback logic if score bins were not generated.",
+                "Re-generate the report to store leadScoreBins for stable distribution reporting.",
+            ),
+        );
+    }
+
+    if (!hasTrend) {
+        issues.push(
+            makeIssue(
+                "fallback-trend",
+                "Info",
+                "Trend series is missing",
+                "Trend charts may show placeholder values when the report does not include a trend series.",
+                "Generate and store a trend series to enable real trend reporting.",
             ),
         );
     }
