@@ -452,12 +452,26 @@ export function buildReportValidationModel(
     // ----------------------------
     // Label variants (helps business users fix split categories)
     // ----------------------------
+    // Prefer lead-level dataQuality if available (more accurate).
+    // Fallback to grouped tables for older reports.
+    // Prefer lead-level dataQuality if available (more accurate).
+    // Fallback to grouped tables for older reports.
     const labelVariants: LabelVariantGroup[] = [
-        ...findLabelVariants("Channel", report.channels as any),
-        ...findLabelVariants("Campaign", report.campaigns as any),
-        ...findLabelVariants("Region", report.regions as any),
-        ...findLabelVariants("Agent", report.agents as any),
+        ...findLabelVariantsFromDataQuality(report, "Channel"),
+        ...findLabelVariantsFromDataQuality(report, "Campaign"),
+        ...findLabelVariantsFromDataQuality(report, "Region"),
+        ...findLabelVariantsFromDataQuality(report, "Agent"),
     ];
+
+    if (labelVariants.length === 0) {
+        // Fallback (older reports without dataQuality)
+        labelVariants.push(
+            ...findLabelVariants("Channel", report.channels as any),
+            ...findLabelVariants("Campaign", report.campaigns as any),
+            ...findLabelVariants("Region", report.regions as any),
+            ...findLabelVariants("Agent", report.agents as any),
+        );
+    }
 
     // If variants exist, raise a Warning issue.
     // This is one of the most common real-world reasons totals “feel wrong”.
@@ -566,6 +580,78 @@ function getFieldDQ(report: GeneratedReport, field: string) {
     const dq: any = (report as any).dataQuality;
     if (!dq?.fields || !Array.isArray(dq.fields)) return null;
     return dq.fields.find((x: any) => x.field === field) ?? null;
+}
+
+function fieldToDQKey(field: LabelVariantGroup["field"]): string {
+    switch (field) {
+        case "Channel":
+            return "channel";
+        case "Campaign":
+            return "campaign";
+        case "Region":
+            return "region";
+        case "Agent":
+            return "agent";
+    }
+}
+
+function findLabelVariantsFromDataQuality(
+    report: GeneratedReport,
+    field: LabelVariantGroup["field"],
+): LabelVariantGroup[] {
+    const dqFieldKey = fieldToDQKey(field);
+    const dq = getFieldDQ(report, dqFieldKey);
+
+    // If we don't have dataQuality for this report, return empty and let fallback handle it.
+    if (!dq || !Array.isArray(dq.topValues)) return [];
+
+    // Group raw top values by normalized key (trim/lower/collapse separators).
+    const map = new Map<string, { label: string; leads: number }[]>();
+
+    for (const tv of dq.topValues) {
+        const label = String(tv.value ?? "").trim();
+        if (!label) continue;
+
+        const key = normalizeKey(label);
+        const arr = map.get(key) ?? [];
+        arr.push({ label, leads: safeNumber(tv.count, 0) });
+        map.set(key, arr);
+    }
+
+    const groups: LabelVariantGroup[] = [];
+
+    for (const [key, variants] of map.entries()) {
+        // Only consider duplicates if we have 2+ distinct labels
+        const distinctLabels = Array.from(
+            new Set(variants.map((v) => v.label)),
+        );
+        if (distinctLabels.length < 2) continue;
+
+        // Sort by impact
+        variants.sort((a, b) => b.leads - a.leads);
+
+        const totalLeads = variants.reduce(
+            (s, v) => s + safeNumber(v.leads, 0),
+            0,
+        );
+        const canonical = variants[0]?.label ?? distinctLabels[0];
+        const aliases = variants
+            .slice(1)
+            .map((v) => ({ label: v.label, leads: v.leads }));
+
+        groups.push({
+            field,
+            normalizedKey: key,
+            variants: variants.map((v) => ({ label: v.label, leads: v.leads })),
+            canonical,
+            aliases,
+            totalLeads,
+        });
+    }
+
+    // Most impactful first
+    groups.sort((a, b) => b.totalLeads - a.totalLeads);
+    return groups;
 }
 
 function buildExplainers(): ExplainerItem[] {

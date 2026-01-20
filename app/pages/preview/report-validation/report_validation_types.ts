@@ -50,9 +50,18 @@ export type LabelVariantItem = {
 
 export type LabelVariantGroup = {
     field: "Channel" | "Campaign" | "Region" | "Agent";
-    normalizedKey: string; // e.g. "facebook"
-    variants: LabelVariantItem[]; // e.g. Facebook / FB / Facebook␠
-    totalLeads: number; // sum of variants leads
+    normalizedKey: string;
+
+    // All distinct labels that likely refer to the same thing, sorted by leads desc.
+    variants: LabelVariantItem[];
+
+    // Recommended standard label (usually the most frequent).
+    canonical: string;
+
+    // The rest that should be mapped into canonical.
+    aliases: LabelVariantItem[];
+
+    totalLeads: number;
 };
 
 export type ExplainerItem = {

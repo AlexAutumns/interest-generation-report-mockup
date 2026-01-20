@@ -678,6 +678,40 @@ export default function ReportValidationPage() {
                                         ))}
                                     </div>
 
+                                    <div className="mt-3 text-xs text-gray-700">
+                                        <div className="font-semibold text-[#193E6B]">
+                                            Suggested standard label:
+                                        </div>
+                                        <div className="mt-1 rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-800 ring-1 ring-gray-200">
+                                            {g.canonical}
+                                        </div>
+
+                                        {g.aliases.length > 0 && (
+                                            <div className="mt-2">
+                                                <div className="font-semibold text-[#193E6B]">
+                                                    Map these into “
+                                                    {g.canonical}”:
+                                                </div>
+                                                <div className="mt-1 space-y-1">
+                                                    {g.aliases.map((a) => (
+                                                        <div
+                                                            key={a.label}
+                                                            className="flex justify-between gap-3"
+                                                        >
+                                                            <div className="truncate">
+                                                                “{a.label}” → “
+                                                                {g.canonical}”
+                                                            </div>
+                                                            <div className="font-semibold">
+                                                                {a.leads}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
                                     <div className="mt-3 text-xs text-gray-500">
                                         Suggested action: pick one label (e.g.,
                                         “Facebook”) and map the others to it.
