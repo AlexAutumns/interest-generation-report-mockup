@@ -131,6 +131,46 @@ function severityRank(s: ValidationSeverity): number {
     }
 }
 
+function clamp(n: number, min: number, max: number): number {
+    return Math.max(min, Math.min(max, n));
+}
+
+function computeDataQualityScore(report: GeneratedReport): number {
+    const dq: any = (report as any).dataQuality;
+    if (!dq?.fields || !Array.isArray(dq.fields)) {
+        // Older reports: neutral but not perfect.
+        return 70;
+    }
+
+    // Key fields that strongly affect reporting.
+    const keyFields = new Set([
+        "status",
+        "channel",
+        "region",
+        "campaign",
+        "agent",
+        "leadScore",
+        "createdAt",
+    ]);
+
+    let score = 100;
+
+    for (const f of dq.fields) {
+        if (!keyFields.has(f.field)) continue;
+
+        const missing = safeNumber(f.missingPercent, 0);
+        const unknown = safeNumber(f.unknownPercent, 0);
+
+        // Penalty weights:
+        // - Missing is worse than unknown because it cannot be normalized.
+        // - Unknown still hurts but can be fixed via standardization.
+        score -= missing * 1.2;
+        score -= unknown * 0.8;
+    }
+
+    return clamp(Math.round(score), 0, 100);
+}
+
 function computeHealth(issues: ValidationIssue[]): ValidationHealth {
     if (issues.some((i) => i.severity === "Critical")) return "Critical";
     if (issues.some((i) => i.severity === "Warning")) return "Warning";
@@ -220,10 +260,6 @@ export function buildReportValidationModel(
             );
         }
     }
-    //     } else {
-    // Contacted is missing. We report this as an Info-level fallback issue
-    // (so the message is consistent and appears only once).
-    // }
 
     // ----------------------------
     // Warning-level reconciliation checks
@@ -527,7 +563,7 @@ export function buildReportValidationModel(
                 "fallback-trend",
                 "Info",
                 "Trend series is missing",
-                "Trend charts may show placeholder values when the report does not include a trend series.",
+                "The KPI Trend view may use a generated placeholder series when the report does not store trend data.",
                 "Generate and store a trend series to enable real trend reporting.",
             ),
         );
@@ -548,8 +584,11 @@ export function buildReportValidationModel(
     // Health must be computed AFTER all issues are added.
     const health = computeHealth(issues);
 
+    const dataQualityScore = computeDataQualityScore(report);
+
     return {
         health,
+        dataQualityScore,
         issues,
         funnelChecks,
         reconciliation,

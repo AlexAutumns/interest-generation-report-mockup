@@ -124,7 +124,9 @@ function buildDataQuality(scoped: any[]): ReportDataQuality {
             missingPercent: pctSafe(missingCount, total),
             unknownCount,
             unknownPercent: pctSafe(unknownCount, total),
-            topValues: topK(valueCounts, 8),
+            // Store more raw values so the validation page can detect more label variants
+            // (e.g., "FB", "Facebook", "Facebook ").
+            topValues: topK(valueCounts, 20),
         };
     };
 

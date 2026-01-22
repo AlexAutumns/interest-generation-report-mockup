@@ -216,12 +216,15 @@ export default function ReportValidationPage() {
                         type="button"
                         onClick={() => {
                             if (model.labelVariants.length === 0) {
-                                toast.info("No suggested mappings found");
+                                toast.info("No suggested mappings found", {
+                                    description:
+                                        "No likely duplicate labels were detected.",
+                                });
                                 return;
                             }
 
                             const lines = model.labelVariants
-                                .slice(0, 20)
+                                .slice(0, 30) // prevent huge copy payloads
                                 .flatMap((g) => {
                                     if (!g.aliases || g.aliases.length === 0)
                                         return [];
@@ -245,13 +248,13 @@ export default function ReportValidationPage() {
                                     .catch(() =>
                                         toast.info("Copy failed", {
                                             description:
-                                                "Please copy manually from the page.",
+                                                "Please copy the mappings manually from the page.",
                                         }),
                                     );
                             } else {
                                 toast.info("Copy not supported", {
                                     description:
-                                        "Please copy manually from the page.",
+                                        "Please copy the mappings manually from the page.",
                                 });
                             }
                         }}
@@ -370,6 +373,15 @@ export default function ReportValidationPage() {
                                 <div className="mt-1 text-lg font-semibold text-[#193E6B]">
                                     {model.health}
                                 </div>
+                                <div className="mt-1 text-sm font-semibold text-[#193E6B]">
+                                    Data quality score: {model.dataQualityScore}
+                                    /100
+                                </div>
+                                <div className="mt-1 text-xs text-[#193E6B]/80">
+                                    Based on missing/unknown values in key
+                                    fields (status/channel/region/etc.).
+                                </div>
+
                                 <div className="mt-1 text-xs text-[#193E6B]">
                                     {
                                         model.issues.filter(
@@ -509,20 +521,39 @@ export default function ReportValidationPage() {
                                 <div className="font-semibold">
                                     Quick actions
                                 </div>
+
                                 <ul className="mt-2 list-disc space-y-1 pl-4">
                                     <li>
-                                        If you see missing values, assign
-                                        Channel/Region/Campaign before the next
-                                        refresh.
+                                        If you see missing{" "}
+                                        <span className="font-semibold">
+                                            Channel
+                                        </span>
+                                        ,{" "}
+                                        <span className="font-semibold">
+                                            Region
+                                        </span>
+                                        , or{" "}
+                                        <span className="font-semibold">
+                                            Status
+                                        </span>
+                                        , assign these fields before the next
+                                        reporting cycle.
                                     </li>
                                     <li>
-                                        If you see duplicates (e.g., “FB” vs
-                                        “Facebook”), normalize labels in the
-                                        source system.
+                                        If you see duplicates like “FB” vs
+                                        “Facebook”, normalize labels in the
+                                        source system (choose one standard
+                                        label).
                                     </li>
                                     <li>
                                         Re-generate the report after cleanup to
-                                        confirm issues are resolved.
+                                        confirm the issues are resolved.
+                                    </li>
+                                    <li>
+                                        If funnel stages look inconsistent,
+                                        review the status workflow (Engaged →
+                                        Qualified → Converted) and update
+                                        records accordingly.
                                     </li>
                                 </ul>
                             </div>

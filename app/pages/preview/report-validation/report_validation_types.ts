@@ -75,6 +75,8 @@ export type ReportValidationModel = {
     health: ValidationHealth;
     issues: ValidationIssue[];
 
+    dataQualityScore: number; // 0–100
+
     funnelChecks: FunnelCheckRow[];
     reconciliation: ReconciliationRow[];
 
