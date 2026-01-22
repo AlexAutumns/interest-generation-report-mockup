@@ -673,13 +673,14 @@ function findLabelVariantsFromDataQuality(
         );
         if (distinctLabels.length < 2) continue;
 
-        // Sort by impact
-        variants.sort((a, b) => b.leads - a.leads);
-
         const totalLeads = variants.reduce(
             (s, v) => s + safeNumber(v.leads, 0),
             0,
         );
+
+        // Sort variants by impact (highest leads first) so it's easy to read
+        variants.sort((a, b) => b.leads - a.leads);
+
         const canonical = variants[0]?.label ?? distinctLabels[0];
         const aliases = variants
             .slice(1)
