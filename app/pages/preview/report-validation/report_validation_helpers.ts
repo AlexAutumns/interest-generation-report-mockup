@@ -18,50 +18,35 @@ import type {
     PriorityFix,
 } from "./report_validation_types";
 
-export type ReportFallbackFlags = {
-    contactedMissing: boolean;
-    leadScoreBinsMissing: boolean;
-    trendMissing: boolean;
-};
+import {
+    clamp,
+    cleanList,
+    normalizeKey,
+    safeNumber,
+    severityRank,
+} from "./validation_utils";
 
-export type ReportFilterSummary = {
-    periodLabel: string;
+import { buildExplainers } from "./validation_explainers";
 
-    scopeMode: "all" | "filtered" | "unknown";
-    applyFiltersTo: "preview_only" | "exports_only" | "both" | "unknown";
+import { buildLabelVariants } from "./validation_label_variants";
 
-    // null means "report is old and doesn’t store this yet"
-    appliedToReport: boolean | null;
+import {
+    computeDataQualityScore,
+    computeHealth,
+    makePriorityFixes,
+} from "./validation_scoring";
 
-    agents: string[];
-    statuses: string[];
-    channels: string[];
-    regions: string[];
-    campaigns: string[];
-};
+import { buildCompletenessRows, getFieldDQ } from "./validation_data_quality";
 
-function safeNumber(n: unknown, fallback = 0): number {
-    const v = Number(n);
-    return Number.isFinite(v) ? v : fallback;
-}
+import { buildFunnelChecks } from "./validation_checks_funnel";
+
+import { buildReconciliationChecks } from "./validation_checks_reconciliation";
+
+import { finalizeValidationModel } from "./validation_finalize";
 
 function sumLeads<T extends { leads: number }>(rows: T[] | undefined): number {
     if (!rows || rows.length === 0) return 0;
     return rows.reduce((s, r) => s + safeNumber(r.leads, 0), 0);
-}
-
-function normalizeKey(raw: string): string {
-    // Normalization intended for "are these likely the same label?"
-    // - trim + lowercase
-    // - collapse multiple spaces
-    // - remove common separators/punctuation that cause splits
-    return raw
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, " ")
-        .replace(/[_\-\/\\]+/g, " ")
-        .replace(/[.,:;()]/g, "")
-        .trim();
 }
 
 function findLabelVariants<T extends { name: string; leads: number }>(
@@ -119,63 +104,6 @@ function findLabelVariants<T extends { name: string; leads: number }>(
     groups.sort((a, b) => b.totalLeads - a.totalLeads);
 
     return groups;
-}
-
-function severityRank(s: ValidationSeverity): number {
-    switch (s) {
-        case "Critical":
-            return 3;
-        case "Warning":
-            return 2;
-        case "Info":
-            return 1;
-    }
-}
-
-function clamp(n: number, min: number, max: number): number {
-    return Math.max(min, Math.min(max, n));
-}
-
-function computeDataQualityScore(report: GeneratedReport): number {
-    const dq: any = (report as any).dataQuality;
-    if (!dq?.fields || !Array.isArray(dq.fields)) {
-        // Older reports: neutral but not perfect.
-        return 70;
-    }
-
-    // Key fields that strongly affect reporting.
-    const keyFields = new Set([
-        "status",
-        "channel",
-        "region",
-        "campaign",
-        "agent",
-        "leadScore",
-        "createdAt",
-    ]);
-
-    let score = 100;
-
-    for (const f of dq.fields) {
-        if (!keyFields.has(f.field)) continue;
-
-        const missing = safeNumber(f.missingPercent, 0);
-        const unknown = safeNumber(f.unknownPercent, 0);
-
-        // Penalty weights:
-        // - Missing is worse than unknown because it cannot be normalized.
-        // - Unknown still hurts but can be fixed via standardization.
-        score -= missing * 1.2;
-        score -= unknown * 0.8;
-    }
-
-    return clamp(Math.round(score), 0, 100);
-}
-
-function computeHealth(issues: ValidationIssue[]): ValidationHealth {
-    if (issues.some((i) => i.severity === "Critical")) return "Critical";
-    if (issues.some((i) => i.severity === "Warning")) return "Warning";
-    return "Healthy";
 }
 
 function makeIssue(
@@ -265,61 +193,7 @@ export function buildReportValidationModel(
     // ----------------------------
     // Warning-level reconciliation checks
     // ----------------------------
-    const reconciliation: ReconciliationRow[] = [];
-
-    const channelsTotal = sumLeads(report.channels);
-    reconciliation.push({
-        label: "Channels",
-        expectedTotal: total,
-        actualTotal: channelsTotal,
-        status: channelsTotal === total ? "Pass" : "Warn",
-        note:
-            channelsTotal === total
-                ? "All leads are accounted for by channel."
-                : `Difference: ${Math.abs(total - channelsTotal)} lead(s) may have missing/unknown channel.`,
-    });
-
-    const campaignsTotal = sumLeads(report.campaigns);
-    if (report.campaigns && report.campaigns.length > 0) {
-        reconciliation.push({
-            label: "Campaigns",
-            expectedTotal: total,
-            actualTotal: campaignsTotal,
-            status: campaignsTotal === total ? "Pass" : "Warn",
-            note:
-                campaignsTotal === total
-                    ? "All leads are accounted for by campaign."
-                    : `Difference: ${Math.abs(total - campaignsTotal)} lead(s) may have missing/unknown campaign.`,
-        });
-    }
-
-    const regionsTotal = sumLeads(report.regions);
-    if (report.regions && report.regions.length > 0) {
-        reconciliation.push({
-            label: "Regions",
-            expectedTotal: total,
-            actualTotal: regionsTotal,
-            status: regionsTotal === total ? "Pass" : "Warn",
-            note:
-                regionsTotal === total
-                    ? "All leads are accounted for by region."
-                    : `Difference: ${Math.abs(total - regionsTotal)} lead(s) may have missing/unknown region.`,
-        });
-    }
-
-    const agentsTotal = sumLeads(report.agents);
-    if (report.agents && report.agents.length > 0) {
-        reconciliation.push({
-            label: "Agents",
-            expectedTotal: total,
-            actualTotal: agentsTotal,
-            status: agentsTotal === total ? "Pass" : "Warn",
-            note:
-                agentsTotal === total
-                    ? "All leads are accounted for by agent."
-                    : `Difference: ${Math.abs(total - agentsTotal)} lead(s) may have missing/unknown agent.`,
-        });
-    }
+    const reconciliation = buildReconciliationChecks(report, issues, makeIssue);
 
     // If any reconciliation row warns, add a warning issue (business-friendly)
     const hasReconWarn = reconciliation.some((r) => r.status === "Warn");
@@ -390,47 +264,14 @@ export function buildReportValidationModel(
     // ----------------------------
     // Funnel check rows (for a clear “Pass/Fail” panel)
     // ----------------------------
-    const funnelChecks: FunnelCheckRow[] = [];
-
-    funnelChecks.push({
-        label: "Captured equals total leads",
-        status: fNew === total ? "Pass" : "Fail",
-        details: `Captured=${fNew}, Total=${total}`,
-    });
-
-    funnelChecks.push({
-        label: "Converted equals executive summary converted",
-        status: fConverted === convertedSummary ? "Pass" : "Fail",
-        details: `Converted=${fConverted}, Summary Converted=${convertedSummary}`,
-    });
-
-    if (hasContacted) {
-        const ok =
-            fNew >= fContacted &&
-            fContacted >= fEngaged &&
-            fEngaged >= fQualified &&
-            fQualified >= fConverted;
-
-        funnelChecks.push({
-            label: "Monotonic funnel ordering",
-            status: ok ? "Pass" : "Fail",
-            details: `Captured=${fNew} ≥ Contacted=${fContacted} ≥ Engaged=${fEngaged} ≥ Qualified=${fQualified} ≥ Converted=${fConverted}`,
-        });
-    } else {
-        funnelChecks.push({
-            label: "Contacted stored in report",
-            status: "Fail",
-            details:
-                "This report does not include funnel.contacted (older format).",
-        });
-    }
+    const funnelChecks = buildFunnelChecks(report, issues, makeIssue);
 
     // ----------------------------
     // Completeness panel (MVP version, report-only)
     // Note: true missing-field coverage needs raw lead-level data.
     // For now we surface “coverage” via sum mismatches and optional arrays.
     // ----------------------------
-    const completeness: CompletenessRow[] = [];
+    const completeness = buildCompletenessRows(report, issues, makeIssue);
 
     const fieldsToShow: Array<{ field: any; label: string }> = [
         { field: "status", label: "Status completeness" },
@@ -491,12 +332,7 @@ export function buildReportValidationModel(
     // ----------------------------
     // Prefer lead-level dataQuality if available (more accurate).
     // Fallback to grouped tables for older reports.
-    const labelVariants: LabelVariantGroup[] = [
-        ...findLabelVariantsFromDataQuality(report, "Channel"),
-        ...findLabelVariantsFromDataQuality(report, "Campaign"),
-        ...findLabelVariantsFromDataQuality(report, "Region"),
-        ...findLabelVariantsFromDataQuality(report, "Agent"),
-    ];
+    const labelVariants = buildLabelVariants(report, getFieldDQ);
 
     if (labelVariants.length === 0) {
         // Fallback (older reports without dataQuality)
@@ -575,23 +411,11 @@ export function buildReportValidationModel(
     // ----------------------------
     const explainers: ExplainerItem[] = buildExplainers();
 
-    // Sort issues by severity (Critical first) then title.
-    issues.sort((a, b) => {
-        const d = severityRank(b.severity) - severityRank(a.severity);
-        if (d !== 0) return d;
-        return a.title.localeCompare(b.title);
-    });
-
-    // Health must be computed AFTER all issues are added.
-    const health = computeHealth(issues);
-
     const dataQualityScore = computeDataQualityScore(report);
 
     const priorityFixes = makePriorityFixes(report, issues, labelVariants);
 
-    return {
-        health,
-        dataQualityScore,
+    return finalizeValidationModel({
         issues,
         funnelChecks,
         reconciliation,
@@ -599,172 +423,8 @@ export function buildReportValidationModel(
         labelVariants,
         priorityFixes,
         explainers,
-    };
-}
-
-function pickWorstDQField(report: GeneratedReport): any | null {
-    const dq: any = (report as any).dataQuality;
-    if (!dq?.fields || !Array.isArray(dq.fields)) return null;
-
-    // We care most about these for reporting consistency
-    const important = new Set([
-        "status",
-        "channel",
-        "region",
-        "campaign",
-        "agent",
-    ]);
-
-    const scored = dq.fields
-        .filter((f: any) => important.has(f.field))
-        .map((f: any) => ({
-            ...f,
-            impact:
-                safeNumber(f.missingPercent, 0) * 1.2 +
-                safeNumber(f.unknownPercent, 0) * 0.8,
-        }))
-        .sort((a: any, b: any) => b.impact - a.impact);
-
-    return scored[0] ?? null;
-}
-
-function makePriorityFixes(
-    report: GeneratedReport,
-    issues: ValidationIssue[],
-    labelVariants: LabelVariantGroup[],
-): PriorityFix[] {
-    const fixes: PriorityFix[] = [];
-
-    // 1) Funnel integrity: if any critical funnel mismatch exists, prioritize it first
-    const funnelCritical = issues.find(
-        (i) =>
-            i.severity === "Critical" &&
-            (i.id === "total-mismatch" ||
-                i.id === "converted-mismatch" ||
-                i.id === "funnel-monotonic"),
-    );
-
-    if (funnelCritical) {
-        fixes.push({
-            title: "Fix funnel consistency first",
-            reason: funnelCritical.meaning,
-            action: funnelCritical.action,
-            severity: "Critical",
-        });
-    }
-
-    // 2) Data Quality: worst missing/unknown field
-    const worst = pickWorstDQField(report);
-    if (
-        worst &&
-        (safeNumber(worst.missingPercent, 0) > 2 ||
-            safeNumber(worst.unknownPercent, 0) > 2)
-    ) {
-        fixes.push({
-            title: `Improve ${String(worst.field)} data completeness`,
-            reason: `Missing: ${Number(worst.missingPercent).toFixed(1)}%, Unknown: ${Number(worst.unknownPercent).toFixed(1)}%`,
-            action: "Fill missing values and standardize labels in the source system, then re-generate the report.",
-            severity:
-                safeNumber(worst.missingPercent, 0) > 10 ||
-                safeNumber(worst.unknownPercent, 0) > 10
-                    ? "Critical"
-                    : "Warning",
-        });
-    }
-
-    // 3) Label variants: biggest duplicate group
-    const biggestVariant = labelVariants
-        .slice()
-        .sort((a, b) => b.totalLeads - a.totalLeads)[0];
-    if (
-        biggestVariant &&
-        biggestVariant.aliases &&
-        biggestVariant.aliases.length > 0
-    ) {
-        fixes.push({
-            title: `Normalize ${biggestVariant.field} labels`,
-            reason: `Multiple spellings detected for “${biggestVariant.canonical}” (affects ${biggestVariant.totalLeads} leads).`,
-            action: `Map aliases into “${biggestVariant.canonical}” (e.g., ${biggestVariant.aliases
-                .slice(0, 2)
-                .map((a) => `"${a.label}"`)
-                .join(
-                    ", ",
-                )} → "${biggestVariant.canonical}"), then re-generate the report.`,
-            severity: "Warning",
-        });
-    }
-
-    // Keep max 3 and ensure no empties
-    return fixes.filter(Boolean).slice(0, 3);
-}
-
-function cleanList(arr: unknown): string[] {
-    if (!Array.isArray(arr)) return [];
-    return arr.map((x) => String(x ?? "").trim()).filter(Boolean);
-}
-
-export function buildFilterSummary(
-    report: GeneratedReport,
-): ReportFilterSummary {
-    // We pull from report.filters if available.
-    // This keeps the page aligned with whatever scope the report was generated with.
-    const f: any = (report as any).filters;
-
-    if (!f) {
-        return {
-            periodLabel: report.periodLabel,
-            scopeMode: "unknown",
-            applyFiltersTo: "unknown",
-            appliedToReport: null,
-
-            agents: [],
-            statuses: [],
-            channels: [],
-            regions: [],
-            campaigns: [],
-        };
-    }
-
-    return {
-        periodLabel: report.periodLabel,
-        scopeMode: f.scopeMode ?? "unknown",
-        applyFiltersTo: f.applyFiltersTo ?? "unknown",
-        appliedToReport:
-            typeof f.appliedToReport === "boolean" ? f.appliedToReport : null,
-
-        agents: cleanList(f.agents),
-        statuses: cleanList(f.statuses),
-        channels: cleanList(f.channels),
-        regions: cleanList(f.regions),
-        campaigns: cleanList(f.campaigns),
-    };
-}
-
-export function detectFallbackFlags(
-    report: GeneratedReport,
-): ReportFallbackFlags {
-    const hasContacted = Object.prototype.hasOwnProperty.call(
-        report.funnel as any,
-        "contacted",
-    );
-    const hasBins =
-        Array.isArray((report as any).leadScoreBins) &&
-        (report as any).leadScoreBins.length > 0;
-    const hasTrend =
-        Array.isArray((report as any).trend) &&
-        (report as any).trend.length > 0;
-
-    return {
-        contactedMissing: !hasContacted,
-        leadScoreBinsMissing: !hasBins,
-        trendMissing: !hasTrend,
-    };
-}
-
-function getFieldDQ(report: GeneratedReport, field: string) {
-    const dq: any = (report as any).dataQuality;
-    if (!dq?.fields || !Array.isArray(dq.fields)) return null;
-    return dq.fields.find((x: any) => x.field === field) ?? null;
+        dataQualityScore,
+    });
 }
 
 function fieldToDQKey(field: LabelVariantGroup["field"]): string {
@@ -838,53 +498,4 @@ function findLabelVariantsFromDataQuality(
     // Most impactful first
     groups.sort((a, b) => b.totalLeads - a.totalLeads);
     return groups;
-}
-
-function buildExplainers(): ExplainerItem[] {
-    return [
-        {
-            title: "Total leads (Captured)",
-            definition:
-                "All leads included in the report period and filters. This is the total pipeline entry count for the selected scope.",
-            formula: "Captured = count(leads in scope)",
-            example:
-                "If 157 leads were created in January and match filters, Captured = 157.",
-        },
-        {
-            title: "Converted leads",
-            definition:
-                "Leads that have a conversion event. In the prototype, a lead is converted if the conversion flag is true OR status indicates conversion.",
-            formula:
-                "Converted = count(leads where conversion > 0 OR status == 'Converted')",
-            example:
-                "If a lead has conversion=1 but status isn’t updated yet, it is still counted as Converted.",
-        },
-        {
-            title: "Conversion rate",
-            definition:
-                "The percentage of total leads that converted in the selected scope.",
-            formula: "Conversion rate (%) = (Converted ÷ Total) × 100",
-        },
-        {
-            title: "Funnel stages",
-            definition:
-                "Stages are cumulative: each stage includes leads at that stage or beyond (e.g., Engaged includes Qualified and Converted).",
-            formula:
-                "Engaged = Engaged-or-later, Qualified = Qualified-or-later, Converted = Converted",
-        },
-        {
-            title: "Contacted (prototype)",
-            definition:
-                "Outreach initiated. In the prototype, this may be estimated based on follow-up speed until activity logs are available.",
-            formula:
-                "Contacted ≈ Captured × factor (based on avg follow-up time), clamped to be ≥ Engaged",
-        },
-        {
-            title: "Lead score distribution",
-            definition:
-                "Leads are grouped into score bands to show lead quality at a glance.",
-            formula:
-                "Bins: 0–20, 21–40, 41–60, 61–80, 81–100 (count leads per band)",
-        },
-    ];
 }

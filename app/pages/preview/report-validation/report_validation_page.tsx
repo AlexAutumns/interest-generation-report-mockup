@@ -9,15 +9,13 @@
 // For now, we create the layout + connect to report repository (reportId).
 
 import { Link, useSearchParams } from "react-router";
+import "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "../../../utils/cn";
 import { useReportByIdSafe } from "../../../services/report_repository";
-import {
-    buildReportValidationModel,
-    buildFilterSummary,
-    detectFallbackFlags,
-} from "./report_validation_helpers";
+import { buildReportValidationModel } from "./report_validation_helpers";
+import { buildFilterSummary, detectFallbackFlags } from "./validation_filters";
 
 import {
     ShieldCheck,
