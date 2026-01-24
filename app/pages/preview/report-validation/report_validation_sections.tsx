@@ -32,13 +32,20 @@ function Card({
     title,
     subtitle,
     children,
+    className,
 }: {
     title: string;
     subtitle?: string;
     children?: ReactNode;
+    className?: string;
 }) {
     return (
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div
+            className={cn(
+                "rounded-xl border border-gray-200 bg-white p-5 shadow-sm flex flex-col h-full",
+                className,
+            )}
+        >
             <div className="flex flex-col gap-1">
                 <div className="text-sm font-semibold text-[#193E6B]">
                     {title}
@@ -48,8 +55,98 @@ function Card({
                 )}
             </div>
 
-            <div className="mt-4">{children}</div>
+            {/* flex-1 allows the card body to stretch when the grid row stretches */}
+            <div className="mt-4 flex-1">{children}</div>
         </div>
+    );
+}
+
+type ValidationSummaryCardProps = {
+    issues: {
+        id: string;
+        title: string;
+        severity: "Critical" | "Warning" | "Info";
+        meaning: string;
+        action: string;
+        details?: string;
+    }[];
+};
+
+export function ValidationSummaryCard({ issues }: ValidationSummaryCardProps) {
+    const critical = issues.filter((i) => i.severity === "Critical").length;
+    const warning = issues.filter((i) => i.severity === "Warning").length;
+    const info = issues.filter((i) => i.severity === "Info").length;
+
+    return (
+        <motion.div
+            className="h-full"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, delay: 0.03 }}
+            whileHover={{ y: -2 }}
+        >
+            <Card
+                className="h-full"
+                title="Validation summary"
+                subtitle="A quick overview of the most important checks."
+            >
+                <div className="flex flex-wrap gap-2 text-xs">
+                    <span className="rounded-full bg-[#F5F5F5] px-2 py-1 font-semibold text-gray-700 ring-1 ring-gray-200">
+                        Critical: {critical}
+                    </span>
+                    <span className="rounded-full bg-[#F5F5F5] px-2 py-1 font-semibold text-gray-700 ring-1 ring-gray-200">
+                        Warning: {warning}
+                    </span>
+                    <span className="rounded-full bg-[#F5F5F5] px-2 py-1 font-semibold text-gray-700 ring-1 ring-gray-200">
+                        Info: {info}
+                    </span>
+                </div>
+
+                {issues.length === 0 ? (
+                    <div className="mt-4 rounded-lg bg-[#F5F5F5] p-4 text-sm text-gray-700 ring-1 ring-gray-200">
+                        No issues detected.
+                    </div>
+                ) : (
+                    <div className="mt-4 divide-y divide-gray-200 rounded-lg border border-gray-200">
+                        {issues.slice(0, 6).map((issue) => (
+                            <div key={issue.id} className="p-4">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="text-sm font-semibold text-[#193E6B]">
+                                        {issue.title}
+                                    </div>
+                                    <span className="rounded-full bg-[#F5F5F5] px-2 py-0.5 text-xs font-semibold text-gray-700 ring-1 ring-gray-200">
+                                        {issue.severity}
+                                    </span>
+                                </div>
+                                <div className="mt-2 text-sm text-gray-700">
+                                    <span className="font-semibold">
+                                        Meaning:
+                                    </span>{" "}
+                                    {issue.meaning}
+                                </div>
+                                <div className="mt-1 text-sm text-gray-700">
+                                    <span className="font-semibold">
+                                        Action:
+                                    </span>{" "}
+                                    {issue.action}
+                                </div>
+                                {issue.details && (
+                                    <div className="mt-2 text-xs text-gray-500">
+                                        {issue.details}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                        {issues.length > 6 && (
+                            <div className="p-3 text-xs text-gray-600">
+                                Showing 6 of {issues.length} issues. See the
+                                full list below.
+                            </div>
+                        )}
+                    </div>
+                )}
+            </Card>
+        </motion.div>
     );
 }
 
@@ -69,10 +166,12 @@ export function HealthContextCard(props: HealthContextCardProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.22 }}
             whileHover={{ y: -2 }}
+            className="h-full"
         >
             <Card
                 title="Health & context"
                 subtitle="High-level summary of report integrity and scope."
+                className="h-full"
             >
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     <div className="rounded-lg bg-[#F5F5F5] p-4 ring-1 ring-gray-200">
@@ -191,10 +290,12 @@ export function PriorityFixesCard(props: PriorityFixesCardProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.22, delay: 0.05 }}
             whileHover={{ y: -2 }}
+            className="h-full"
         >
             <Card
                 title="Top priority fixes"
                 subtitle="Auto-selected actions to improve report accuracy and data quality."
+                className="h-full"
             >
                 {model.priorityFixes.length === 0 ? (
                     <div className="rounded-lg bg-[#F5F5F5] p-4 text-sm text-gray-700 ring-1 ring-gray-200">
@@ -248,10 +349,12 @@ export function IssuesCard(props: IssuesCardProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.22, delay: 0.08 }}
             whileHover={{ y: -2 }}
+            className="h-full"
         >
             <Card
                 title="Validation issues"
                 subtitle="Potential problems that can affect report accuracy."
+                className="h-full"
             >
                 {issues.length === 0 ? (
                     <div className="rounded-lg bg-[#F5F5F5] p-4 text-sm text-gray-700 ring-1 ring-gray-200">
@@ -309,10 +412,12 @@ export function LabelVariantsCard(props: LabelVariantsCardProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.22, delay: 0.1 }}
             whileHover={{ y: -2 }}
+            className="h-full"
         >
             <Card
                 title="Label normalization hints"
                 subtitle="Detects likely duplicate labels (e.g., 'FB' vs 'Facebook') that split your totals."
+                className="h-full"
             >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="text-xs text-gray-600">
@@ -466,10 +571,12 @@ export function CompletenessCard(props: CompletenessCardProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.22, delay: 0.12 }}
             whileHover={{ y: -2 }}
+            className="h-full"
         >
             <Card
                 title="Data completeness"
                 subtitle="Checks for missing or invalid values in key fields."
+                className="h-full"
             >
                 <div className="space-y-2">
                     {rows.map((r, idx) => (
@@ -507,10 +614,12 @@ export function FunnelChecksCard(props: FunnelChecksCardProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.22, delay: 0.14 }}
             whileHover={{ y: -2 }}
+            className="h-full"
         >
             <Card
                 title="Funnel integrity"
                 subtitle="Validates that funnel stages are ordered and plausible."
+                className="h-full"
             >
                 <div className="space-y-2">
                     {rows.map((r, idx) => (
@@ -548,10 +657,12 @@ export function ReconciliationCard(props: ReconciliationCardProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.22, delay: 0.16 }}
             whileHover={{ y: -2 }}
+            className="h-full"
         >
             <Card
                 title="Reconciliation"
                 subtitle="Cross-checks totals across breakdown tables to detect inconsistencies."
+                className="h-full"
             >
                 <div className="space-y-2">
                     {rows.map((r, idx) => (
@@ -589,10 +700,12 @@ export function ExplainersCard(props: ExplainersCardProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.22, delay: 0.18 }}
             whileHover={{ y: -2 }}
+            className="h-full"
         >
             <Card
                 title="How metrics are calculated"
                 subtitle="Plain-language definitions so non-programmers can understand the logic."
+                className="h-full"
             >
                 <div className="space-y-3">
                     {items.map((e, idx) => (

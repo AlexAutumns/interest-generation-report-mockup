@@ -18,6 +18,7 @@ import { buildReportValidationModel } from "./report_validation_helpers";
 import { buildFilterSummary, detectFallbackFlags } from "./validation_filters";
 
 import {
+    ValidationSummaryCard,
     HealthContextCard,
     PriorityFixesCard,
     IssuesCard,
@@ -310,89 +311,58 @@ export default function ReportValidationPage() {
                 </div>
             </motion.div>
 
-            {/* Top row: Issues + Health */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.22, delay: 0.04 }}
-                    whileHover={{ y: -2 }}
-                    className="lg:col-span-8"
-                >
-                    <Card
-                        title="Validation summary"
-                        subtitle="We will list Critical / Warning / Info checks here."
-                    >
-                        <div className="divide-y divide-gray-200 rounded-lg border border-gray-200">
-                            {model.issues.length === 0 ? (
-                                <div className="p-4 text-sm text-gray-700">
-                                    No issues detected.
-                                </div>
-                            ) : (
-                                model.issues.map((issue) => (
-                                    <div key={issue.id} className="p-4">
-                                        <div className="flex items-start justify-between gap-3">
-                                            <div className="text-sm font-semibold text-[#193E6B]">
-                                                {issue.title}
-                                            </div>
-                                            <span className="rounded-full bg-[#F5F5F5] px-2 py-0.5 text-xs font-semibold text-gray-700 ring-1 ring-gray-200">
-                                                {issue.severity}
-                                            </span>
-                                        </div>
-                                        <div className="mt-2 text-sm text-gray-700">
-                                            <span className="font-semibold">
-                                                What it means:
-                                            </span>{" "}
-                                            {issue.meaning}
-                                        </div>
-                                        <div className="mt-1 text-sm text-gray-700">
-                                            <span className="font-semibold">
-                                                Suggested action:
-                                            </span>{" "}
-                                            {issue.action}
-                                        </div>
-                                        {issue.details && (
-                                            <div className="mt-2 text-xs text-gray-500">
-                                                {issue.details}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    </Card>
-                </motion.div>
+            <div className="mt-6 space-y-6">
+                {/* Top row: Summary + Health + Priority (equal-height) */}
+                <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-12">
+                    <div className="lg:col-span-5 h-full">
+                        <ValidationSummaryCard issues={model.issues} />
+                    </div>
 
-                <PriorityFixesCard model={model} />
+                    <div className="lg:col-span-4 h-full">
+                        <HealthContextCard
+                            report={report}
+                            model={model}
+                            filterSummary={filterSummary}
+                            fallbacks={fallbacks}
+                        />
+                    </div>
 
-                <HealthContextCard
-                    report={report}
-                    model={model}
-                    filterSummary={filterSummary}
-                    fallbacks={fallbacks}
-                />
+                    <div className="lg:col-span-3 h-full">
+                        <PriorityFixesCard model={model} />
+                    </div>
+                </div>
+
+                {/* Middle row: Funnel + reconciliation (equal-height) */}
+                <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-12">
+                    <div className="lg:col-span-7 h-full">
+                        <FunnelChecksCard rows={model.funnelChecks} />
+                    </div>
+
+                    <div className="lg:col-span-5 h-full">
+                        <ReconciliationCard rows={model.reconciliation} />
+                    </div>
+                </div>
+
+                {/* Data completeness */}
+                <CompletenessCard rows={model.completeness} />
+
+                <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-12">
+                    <div className="lg:col-span-6 h-full">
+                        <IssuesCard issues={model.issues} />
+                    </div>
+
+                    <div className="lg:col-span-6 h-full">
+                        <LabelVariantsCard
+                            reportName={report.name}
+                            periodLabel={report.periodLabel}
+                            labelVariants={model.labelVariants}
+                        />
+                    </div>
+                </div>
+
+                {/* Calculation explainer */}
+                <ExplainersCard items={model.explainers} />
             </div>
-
-            {/* Middle row: Funnel + reconciliation */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-                <FunnelChecksCard rows={model.funnelChecks} />
-
-                <ReconciliationCard rows={model.reconciliation} />
-            </div>
-
-            {/* Data completeness */}
-            <CompletenessCard rows={model.completeness} />
-
-            <IssuesCard issues={model.issues} />
-
-            <LabelVariantsCard
-                reportName={report.name}
-                periodLabel={report.periodLabel}
-                labelVariants={model.labelVariants}
-            />
-
-            {/* Calculation explainer */}
-            <ExplainersCard items={model.explainers} />
         </div>
     );
 }
