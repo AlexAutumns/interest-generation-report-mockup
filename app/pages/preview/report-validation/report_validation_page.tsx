@@ -357,6 +357,55 @@ export default function ReportValidationPage() {
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.22, delay: 0.05 }}
+                    whileHover={{ y: -2 }}
+                >
+                    <Card
+                        title="Top priority fixes"
+                        subtitle="Auto-selected actions to improve report accuracy and data quality."
+                    >
+                        {model.priorityFixes.length === 0 ? (
+                            <div className="rounded-lg bg-[#F5F5F5] p-4 text-sm text-gray-700 ring-1 ring-gray-200">
+                                No priority fixes detected.
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {model.priorityFixes.map((f, idx) => (
+                                    <div
+                                        key={`${f.title}-${idx}`}
+                                        className="rounded-lg bg-[#F5F5F5] p-4 text-sm text-gray-700 ring-1 ring-gray-200"
+                                    >
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="font-semibold text-[#193E6B]">
+                                                {idx + 1}. {f.title}
+                                            </div>
+                                            <span className="rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-gray-700 ring-1 ring-gray-200">
+                                                {f.severity}
+                                            </span>
+                                        </div>
+
+                                        <div className="mt-2 text-sm">
+                                            <span className="font-semibold">
+                                                Why:
+                                            </span>{" "}
+                                            {f.reason}
+                                        </div>
+                                        <div className="mt-1 text-sm">
+                                            <span className="font-semibold">
+                                                Action:
+                                            </span>{" "}
+                                            {f.action}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </Card>
+                </motion.div>
+
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.22, delay: 0.06 }}
                     whileHover={{ y: -2 }}
                     className="lg:col-span-4"

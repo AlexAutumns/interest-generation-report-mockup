@@ -64,6 +64,13 @@ export type LabelVariantGroup = {
     totalLeads: number;
 };
 
+export type PriorityFix = {
+    title: string; // short action headline
+    reason: string; // why it matters
+    action: string; // what to do
+    severity: "Critical" | "Warning" | "Info";
+};
+
 export type ExplainerItem = {
     title: string;
     definition: string;
@@ -84,6 +91,8 @@ export type ReportValidationModel = {
 
     // NEW: shows likely duplicates like "FB" vs "Facebook"
     labelVariants: LabelVariantGroup[];
+
+    priorityFixes: PriorityFix[];
 
     explainers: ExplainerItem[];
 };
