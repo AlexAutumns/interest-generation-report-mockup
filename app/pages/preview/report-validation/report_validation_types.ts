@@ -28,7 +28,7 @@ export type ReconciliationRow = {
     expectedTotal: number; // total leads
     actualTotal: number; // sum of table leads
     status: "Pass" | "Warn";
-    note?: string; // e.g. "1 lead is missing a region"
+    details?: string; // e.g. "1 lead is missing a region"
 };
 
 export type FunnelCheckRow = {
